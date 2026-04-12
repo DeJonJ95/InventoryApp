@@ -68,13 +68,21 @@ exports.pamsDailySync = onSchedule(
   async () => {
     const snap = await db.collection("items").get();
 
+    // Exact PAMS bulk-import schema (Item_Export_for_import.xls), 10 columns.
+    // One row per item (single storage location model). Low Threshold /
+    // On Order / Using Qty are app-internal and intentionally NOT in this
+    // format — PAMS' 10-column import does not carry them.
     const headers = [
-      "Item ID",
-      "Item Name",
-      "In Stock",
-      "Low Threshold",
-      "On Order",
-      "Using Qty",
+      "ItemName",
+      "BarCode",
+      "BasicUnit",
+      "BasicQuantity",
+      "LargeUnit",
+      "LargeUnitConversionRatio",
+      "Storage",
+      "Section",
+      "Shelf",
+      "Description",
     ];
 
     const rows = [headers.join(",")];
@@ -82,12 +90,16 @@ exports.pamsDailySync = onSchedule(
       const d = doc.data() || {};
       rows.push(
         [
-          csvEscape(doc.id),
           csvEscape(str(d.itemName)),
-          csvEscape(num(d.inStock)),
-          csvEscape(num(d.lowThreshold)),
-          csvEscape(num(d.onOrder)),
-          csvEscape(num(d.usingQty)),
+          csvEscape(doc.id), // BarCode == Item ID
+          csvEscape(str(d.unit) || "EACH"),
+          csvEscape(num(d.inStock)), // BasicQuantity == on-hand
+          csvEscape(str(d.largeUnit)),
+          csvEscape(num(d.largeUnitConversionRatio)),
+          csvEscape(str(d.storage)),
+          csvEscape(str(d.section)),
+          csvEscape(str(d.shelf)),
+          csvEscape(str(d.description)),
         ].join(",")
       );
     });
