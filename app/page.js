@@ -77,6 +77,7 @@ export default function DashboardPage() {
           {items.map((item) => {
             const inStock = Number(item.inStock) || 0;
             const lowThreshold = Number(item.lowThreshold) || 0;
+            const onOrder = Number(item.onOrder) || 0;
             const isLow = inStock < lowThreshold;
 
             return (
@@ -111,6 +112,9 @@ export default function DashboardPage() {
                     >
                       {inStock}
                     </span>
+                  </p>
+                  <p className="mt-1 text-sm text-gray-500">
+                    On Order: <span className="font-semibold text-gray-700">{onOrder}</span>
                   </p>
                   {isLow && (
                     <p className="mt-1 text-sm font-semibold text-red-600">
