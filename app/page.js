@@ -2,19 +2,44 @@
 
 import { useEffect, useState } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
-import { db } from "../lib/firebase";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { db, auth } from "../lib/firebase";
 import { imgUrl, FALLBACK_IMG } from "../lib/items";
 import { useLatestPamsExport } from "../lib/pamsExport";
 import Scanner from "../components/Scanner";
+import Login from "../components/Login";
 
 export default function DashboardPage() {
+  // undefined = auth state still resolving; null = signed out; object = signed in
+  const [user, setUser] = useState(undefined);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (u) => setUser(u ?? null));
+    return () => unsub();
+  }, []);
+
+  if (user === undefined) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-gray-50">
+        <p className="text-gray-500">Loading…</p>
+      </main>
+    );
+  }
+
+  if (!user) return <Login />;
+
+  return <InventoryDashboard user={user} />;
+}
+
+function InventoryDashboard({ user }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [scannerOpen, setScannerOpen] = useState(false);
   const pams = useLatestPamsExport();
 
-  // Real-time subscription to the items collection.
+  // Real-time subscription to the items collection. Only mounted while the
+  // user is authenticated, so the new Firestore rules won't reject it.
   useEffect(() => {
     const unsubscribe = onSnapshot(
       collection(db, "items"),
@@ -54,6 +79,13 @@ export default function DashboardPage() {
             className="rounded-lg bg-blue-600 px-5 py-2.5 text-base font-semibold text-white shadow active:bg-blue-700"
           >
             Scan Item
+          </button>
+          <button
+            onClick={() => signOut(auth)}
+            title={user.email || "Sign out"}
+            className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-base font-semibold text-gray-600 shadow-sm active:bg-gray-100"
+          >
+            Sign Out
           </button>
         </div>
       </header>
@@ -114,7 +146,10 @@ export default function DashboardPage() {
                     </span>
                   </p>
                   <p className="mt-1 text-sm text-gray-500">
-                    On Order: <span className="font-semibold text-gray-700">{onOrder}</span>
+                    On Order:{" "}
+                    <span className="font-semibold text-gray-700">
+                      {onOrder}
+                    </span>
                   </p>
                   {isLow && (
                     <p className="mt-1 text-sm font-semibold text-red-600">
