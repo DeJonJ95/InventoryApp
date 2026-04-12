@@ -1,0 +1,19 @@
+rules_version = '2';
+
+// Stopgap posture: no app auth, so the dashboard reads exports/ anonymously.
+// The Cloud Function writes via the Admin SDK, which bypasses these rules.
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // PAMS CSVs: anyone with the link can download; nobody can write.
+    match /exports/{fileName} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Everything else is locked down.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
