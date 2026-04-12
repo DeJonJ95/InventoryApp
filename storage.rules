@@ -1,13 +1,13 @@
 rules_version = '2';
 
-// Stopgap posture: no app auth, so the dashboard reads exports/ anonymously.
-// The Cloud Function writes via the Admin SDK, which bypasses these rules.
+// Only signed-in Firebase Auth users can read the PAMS CSV exports.
+// Writes are always denied to clients — the daily Cloud Function writes
+// via the Admin SDK, which bypasses these rules entirely.
 service firebase.storage {
   match /b/{bucket}/o {
 
-    // PAMS CSVs: anyone with the link can download; nobody can write.
     match /exports/{fileName} {
-      allow read: if true;
+      allow read: if request.auth != null;
       allow write: if false;
     }
 
