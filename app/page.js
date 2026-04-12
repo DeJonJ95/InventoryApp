@@ -6,6 +6,7 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 import { db, auth } from "../lib/firebase";
 import { imgUrl, FALLBACK_IMG } from "../lib/items";
 import { useLatestPamsExport } from "../lib/pamsExport";
+import { generateInventoryTagsPdf } from "../lib/printTags";
 import Scanner from "../components/Scanner";
 import Login from "../components/Login";
 
@@ -36,7 +37,24 @@ function InventoryDashboard({ user }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [scannerOpen, setScannerOpen] = useState(false);
+  const [printing, setPrinting] = useState(false);
   const pams = useLatestPamsExport();
+
+  async function handlePrintTags() {
+    setPrinting(true);
+    try {
+      await generateInventoryTagsPdf();
+    } catch (err) {
+      console.error("Tag PDF generation failed:", err);
+      alert(
+        err.code === "empty"
+          ? "There are no items to print tags for yet."
+          : "Could not generate the tag sheet. Please try again."
+      );
+    } finally {
+      setPrinting(false);
+    }
+  }
 
   // Real-time subscription to the items collection. Only mounted while the
   // user is authenticated, so the new Firestore rules won't reject it.
@@ -73,6 +91,13 @@ function InventoryDashboard({ user }) {
             className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-base font-semibold text-gray-800 shadow-sm active:bg-gray-100 disabled:opacity-50"
           >
             {pams.loading ? "…" : "Download CSV"}
+          </button>
+          <button
+            onClick={handlePrintTags}
+            disabled={printing}
+            className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-base font-semibold text-gray-800 shadow-sm active:bg-gray-100 disabled:opacity-50"
+          >
+            {printing ? "Generating…" : "Print Inventory Tags"}
           </button>
           <button
             onClick={() => setScannerOpen(true)}
