@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { db, auth } from "../lib/firebase";
@@ -40,17 +40,57 @@ function InventoryDashboard({ user }) {
   const [scannerOpen, setScannerOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [printing, setPrinting] = useState(false);
+  const [query, setQuery] = useState("");
+  const [lowOnly, setLowOnly] = useState(false);
+  const [uncountedOnly, setUncountedOnly] = useState(false);
   const pams = useLatestPamsExport();
 
-  async function handlePrintTags() {
+  const visibleItems = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return items.filter((it) => {
+      const inStock = Number(it.inStock) || 0;
+      const lowThreshold = Number(it.lowThreshold) || 0;
+      if (lowOnly && !(inStock < lowThreshold)) return false;
+      if (uncountedOnly && inStock !== 0) return false;
+      if (
+        q &&
+        !it.id.toLowerCase().includes(q) &&
+        !(it.itemName || "").toLowerCase().includes(q)
+      )
+        return false;
+      return true;
+    });
+  }, [items, query, lowOnly, uncountedOnly]);
+
+  // Prints the given list (defaults to the filtered view) so the manager
+  // can narrow with search/filters and print small batches at the rack.
+  async function handlePrintTags(list) {
+    const target = list || visibleItems;
+    if (target.length === 0) {
+      alert("Nothing to print — adjust the search or filters.");
+      return;
+    }
+    // Guard against an accidental hundreds-of-pages print.
+    if (
+      target.length > 60 &&
+      !window.confirm(
+        `This will generate ${target.length} tags (~${Math.ceil(
+          target.length / 30
+        )} pages). Continue?`
+      )
+    ) {
+      return;
+    }
     setPrinting(true);
     try {
-      await generateInventoryTagsPdf();
+      await generateInventoryTagsPdf(
+        target.map((it) => ({ id: it.id, itemName: it.itemName }))
+      );
     } catch (err) {
       console.error("Tag PDF generation failed:", err);
       alert(
         err.code === "empty"
-          ? "There are no items to print tags for yet."
+          ? "There are no items to print tags for."
           : "Could not generate the tag sheet. Please try again."
       );
     } finally {
@@ -101,11 +141,14 @@ function InventoryDashboard({ user }) {
             Add New Item
           </button>
           <button
-            onClick={handlePrintTags}
+            onClick={() => handlePrintTags()}
             disabled={printing}
+            title="Prints tags for the items currently shown (apply search/filters to narrow)"
             className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-base font-semibold text-gray-800 shadow-sm active:bg-gray-100 disabled:opacity-50"
           >
-            {printing ? "Generating…" : "Print Inventory Tags"}
+            {printing
+              ? "Generating…"
+              : `Print Tags (${visibleItems.length})`}
           </button>
           <button
             onClick={() => setScannerOpen(true)}
@@ -124,6 +167,40 @@ function InventoryDashboard({ user }) {
       </header>
 
       <div className="mx-auto max-w-7xl px-4 py-6">
+        {!loading && !error && items.length > 0 && (
+          <div className="mb-6 flex flex-wrap items-center gap-3">
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search by name or ID…"
+              className="min-w-[220px] flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-base focus:border-blue-500 focus:outline-none"
+            />
+            <button
+              onClick={() => setLowOnly((v) => !v)}
+              className={`rounded-lg border px-4 py-2.5 text-sm font-semibold ${
+                lowOnly
+                  ? "border-red-600 bg-red-50 text-red-700"
+                  : "border-gray-300 bg-white text-gray-700"
+              }`}
+            >
+              Low stock only
+            </button>
+            <button
+              onClick={() => setUncountedOnly((v) => !v)}
+              className={`rounded-lg border px-4 py-2.5 text-sm font-semibold ${
+                uncountedOnly
+                  ? "border-blue-600 bg-blue-50 text-blue-700"
+                  : "border-gray-300 bg-white text-gray-700"
+              }`}
+            >
+              Uncounted (0) only
+            </button>
+            <span className="text-sm text-gray-500">
+              {visibleItems.length} of {items.length}
+            </span>
+          </div>
+        )}
+
         {loading && (
           <p className="py-20 text-center text-gray-500">Loading inventory…</p>
         )}
@@ -138,8 +215,14 @@ function InventoryDashboard({ user }) {
           </p>
         )}
 
+        {!loading && !error && items.length > 0 && visibleItems.length === 0 && (
+          <p className="py-20 text-center text-gray-500">
+            No items match the search or filters.
+          </p>
+        )}
+
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {items.map((item) => {
+          {visibleItems.map((item) => {
             const inStock = Number(item.inStock) || 0;
             const lowThreshold = Number(item.lowThreshold) || 0;
             const onOrder = Number(item.onOrder) || 0;
@@ -189,6 +272,13 @@ function InventoryDashboard({ user }) {
                       Low stock — reorder
                     </p>
                   )}
+                  <button
+                    onClick={() => handlePrintTags([item])}
+                    disabled={printing}
+                    className="mt-3 w-full rounded-lg border border-gray-300 bg-white py-2 text-sm font-semibold text-gray-700 active:bg-gray-100 disabled:opacity-50"
+                  >
+                    Print tag
+                  </button>
                 </div>
               </div>
             );
