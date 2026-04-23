@@ -11,6 +11,7 @@ import Scanner from "../components/Scanner";
 import Login from "../components/Login";
 import AddItemModal from "../components/AddItemModal";
 import AddUnitsModal from "../components/AddUnitsModal";
+import { listAssetTags } from "../lib/assets";
 
 export default function DashboardPage() {
   // undefined = auth state still resolving; null = signed out; object = signed in
@@ -101,6 +102,29 @@ function InventoryDashboard({ user }) {
     }
   }
 
+  // Card "print" action: tracked items reprint ALL their unique unit tags;
+  // untracked items get the single reusable bin tag (the item ID).
+  async function printItemTags(item) {
+    if (!item.tracked) {
+      await handlePrintTags([item]);
+      return;
+    }
+    setPrinting(true);
+    try {
+      const tags = await listAssetTags(item.id, item.itemName);
+      if (tags.length === 0) {
+        alert("This item has no units yet. Use Add units first.");
+        return;
+      }
+      await handlePrintTags(tags);
+    } catch (err) {
+      console.error("Unit tag print failed:", err);
+      alert("Could not load this item's unit tags. Please try again.");
+    } finally {
+      setPrinting(false);
+    }
+  }
+
   // Real-time subscription to the items collection. Only mounted while the
   // user is authenticated, so the new Firestore rules won't reject it.
   useEffect(() => {
@@ -159,12 +183,12 @@ function InventoryDashboard({ user }) {
               <button
                 onClick={() => handlePrintTags()}
                 disabled={printing}
-                title="Prints tags for the items currently shown (apply search/filters to narrow)"
+                title="One bin tag per item currently shown (item-level). For individual unit tags, use Add units / Print unit tags on a card."
                 className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-base font-semibold text-gray-800 shadow-sm active:bg-gray-100 disabled:opacity-50"
               >
                 {printing
                   ? "Generating…"
-                  : `Print Tags (${visibleItems.length})`}
+                  : `Print Bin Tags (${visibleItems.length})`}
               </button>
               <button
                 onClick={() => signOut(auth)}
@@ -209,7 +233,7 @@ function InventoryDashboard({ user }) {
             >
               {printing
                 ? "Generating…"
-                : `Print Tags (${visibleItems.length})`}
+                : `Print Bin Tags (${visibleItems.length})`}
             </button>
             <button
               onClick={() => {
@@ -357,11 +381,16 @@ function InventoryDashboard({ user }) {
                       Add units
                     </button>
                     <button
-                      onClick={() => handlePrintTags([item])}
+                      onClick={() => printItemTags(item)}
                       disabled={printing}
+                      title={
+                        item.tracked
+                          ? "Reprint all unique unit tags for this item"
+                          : "One reusable bin tag (the item ID). Same every time by design."
+                      }
                       className="flex-1 rounded-lg border border-gray-300 bg-white py-2 text-sm font-semibold text-gray-700 active:bg-gray-100 disabled:opacity-50"
                     >
-                      Print tag
+                      {item.tracked ? "Print unit tags" : "Print bin tag"}
                     </button>
                   </div>
                 </div>
