@@ -5,6 +5,8 @@ import { Html5Qrcode } from "html5-qrcode";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { imgUrl, FALLBACK_IMG } from "../lib/items";
+import { checkOutAsset, checkInAsset } from "../lib/assets";
+import { listActiveLocations } from "../lib/locations";
 
 const READER_ID = "qr-reader-region";
 
@@ -28,6 +30,20 @@ export default function Scanner({ onClose }) {
   const [saving, setSaving] = useState(false);
   const [notFoundId, setNotFoundId] = useState("");
 
+  // Asset (individually-tracked unit) flow
+  const [activeAsset, setActiveAsset] = useState(null); // {id,...} or null
+  const [locations, setLocations] = useState([]);
+  // Sticky across scans so a batch check-out to one site needs one pick.
+  const [selectedLocation, setSelectedLocation] = useState("");
+  const [assetBusy, setAssetBusy] = useState(false);
+  const [assetError, setAssetError] = useState("");
+
+  useEffect(() => {
+    listActiveLocations()
+      .then(setLocations)
+      .catch((err) => console.error("Failed to load locations:", err));
+  }, []);
+
   // Pause the camera and load the scanned item into the sub-modal.
   const handleDecoded = useCallback(async (decodedText) => {
     const inst = scannerRef.current;
@@ -40,13 +56,21 @@ export default function Scanner({ onClose }) {
       /* pause throws only if already paused — safe to ignore */
     }
 
-    const itemId = decodedText.trim();
+    const code = decodedText.trim();
     setNotFoundId("");
+    setAssetError("");
     setLoadingItem(true);
     try {
-      const snap = await getDoc(doc(db, "items", itemId));
+      // An asset tag (individually-tracked unit) takes priority over an
+      // item-level (bin) code.
+      const aSnap = await getDoc(doc(db, "assets", code));
+      if (aSnap.exists()) {
+        setActiveAsset({ id: aSnap.id, ...aSnap.data() });
+        return;
+      }
+      const snap = await getDoc(doc(db, "items", code));
       if (!snap.exists()) {
-        setNotFoundId(itemId);
+        setNotFoundId(code);
         return;
       }
       const data = snap.data();
@@ -55,8 +79,8 @@ export default function Scanner({ onClose }) {
       setDraftOnOrder(Number(data.onOrder) || 0);
       setDraftUsingQty(Number(data.usingQty) || 0);
     } catch (err) {
-      console.error("Failed to fetch scanned item:", err);
-      setNotFoundId(itemId);
+      console.error("Failed to fetch scanned code:", err);
+      setNotFoundId(code);
     } finally {
       setLoadingItem(false);
     }
@@ -65,6 +89,8 @@ export default function Scanner({ onClose }) {
   // Resume scanning for the next item.
   const resumeScanning = useCallback(() => {
     setActiveItem(null);
+    setActiveAsset(null);
+    setAssetError("");
     setNotFoundId("");
     const inst = scannerRef.current;
     if (inst && runningRef.current) {
@@ -93,6 +119,36 @@ export default function Scanner({ onClose }) {
       setSaving(false);
     }
   }, [activeItem, draftStock, draftOnOrder, draftUsingQty, resumeScanning]);
+
+  const doCheckOut = useCallback(async () => {
+    if (!activeAsset) return;
+    setAssetError("");
+    setAssetBusy(true);
+    try {
+      await checkOutAsset(activeAsset.id, selectedLocation);
+      resumeScanning(); // keeps selectedLocation sticky for the next scan
+    } catch (err) {
+      console.error("Check-out failed:", err);
+      setAssetError(err.message || "Could not check out. Try again.");
+    } finally {
+      setAssetBusy(false);
+    }
+  }, [activeAsset, selectedLocation, resumeScanning]);
+
+  const doCheckIn = useCallback(async () => {
+    if (!activeAsset) return;
+    setAssetError("");
+    setAssetBusy(true);
+    try {
+      await checkInAsset(activeAsset.id);
+      resumeScanning();
+    } catch (err) {
+      console.error("Check-in failed:", err);
+      setAssetError(err.message || "Could not check in. Try again.");
+    } finally {
+      setAssetBusy(false);
+    }
+  }, [activeAsset, resumeScanning]);
 
   // Start the camera on mount; tear it down on unmount.
   useEffect(() => {
@@ -200,9 +256,109 @@ export default function Scanner({ onClose }) {
       )}
 
       {/* Loading sub-modal */}
-      {loadingItem && !activeItem && (
+      {loadingItem && !activeItem && !activeAsset && (
         <SubModal>
-          <p className="text-center text-gray-700">Looking up item…</p>
+          <p className="text-center text-gray-700">Looking up code…</p>
+        </SubModal>
+      )}
+
+      {/* Asset check-in/out sub-modal */}
+      {activeAsset && (
+        <SubModal>
+          <p className="text-center text-xs font-semibold uppercase tracking-wide text-blue-600">
+            Tracked unit
+          </p>
+          <h3 className="text-center text-xl font-bold text-gray-900">
+            {activeAsset.itemName || activeAsset.itemId}
+          </h3>
+          <p className="mt-0.5 text-center text-sm text-gray-500">
+            {activeAsset.id}
+          </p>
+
+          {activeAsset.status === "checked_out" ? (
+            <>
+              <div className="mt-4 rounded-xl border-2 border-amber-200 bg-amber-50 p-4 text-center">
+                <p className="text-sm text-gray-600">Currently checked out to</p>
+                <p className="text-lg font-bold text-gray-900">
+                  {activeAsset.location || "unknown"}
+                </p>
+              </div>
+              {assetError && (
+                <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+                  {assetError}
+                </p>
+              )}
+              <div className="mt-5 flex gap-3">
+                <button
+                  onClick={resumeScanning}
+                  disabled={assetBusy}
+                  className="flex-1 rounded-lg bg-gray-200 py-3 text-base font-semibold text-gray-800 active:bg-gray-300 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={doCheckIn}
+                  disabled={assetBusy}
+                  className="flex-1 rounded-lg bg-green-600 py-3 text-base font-semibold text-white active:bg-green-700 disabled:opacity-50"
+                >
+                  {assetBusy ? "Working…" : "Check In"}
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="mt-4 rounded-xl border-2 border-blue-200 bg-blue-50 p-4">
+                <p className="text-sm font-semibold text-gray-800">
+                  Check out to
+                </p>
+                <select
+                  value={selectedLocation}
+                  disabled={assetBusy}
+                  onChange={(e) => setSelectedLocation(e.target.value)}
+                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-3 py-3 text-base disabled:opacity-50"
+                >
+                  <option value="">Select a location…</option>
+                  {locations.map((l) => (
+                    <option key={l.id} value={l.name}>
+                      {l.name}
+                    </option>
+                  ))}
+                </select>
+                {locations.length === 0 && (
+                  <p className="mt-2 text-xs text-amber-700">
+                    No locations yet — add some under Locations first.
+                  </p>
+                )}
+                {selectedLocation && (
+                  <p className="mt-2 text-xs text-gray-500">
+                    Stays selected for the next scans — scan a batch to the same
+                    site without re-picking.
+                  </p>
+                )}
+              </div>
+              {assetError && (
+                <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+                  {assetError}
+                </p>
+              )}
+              <div className="mt-5 flex gap-3">
+                <button
+                  onClick={resumeScanning}
+                  disabled={assetBusy}
+                  className="flex-1 rounded-lg bg-gray-200 py-3 text-base font-semibold text-gray-800 active:bg-gray-300 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={doCheckOut}
+                  disabled={assetBusy || !selectedLocation}
+                  className="flex-1 rounded-lg bg-blue-600 py-3 text-base font-semibold text-white active:bg-blue-700 disabled:opacity-50"
+                >
+                  {assetBusy ? "Working…" : "Check Out"}
+                </button>
+              </div>
+            </>
+          )}
         </SubModal>
       )}
 
