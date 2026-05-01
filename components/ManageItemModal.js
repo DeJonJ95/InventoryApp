@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "../lib/firebase";
 import { removeUnusedUnits, deleteItemCompletely } from "../lib/assets";
 import { selectAllProps } from "../lib/ui";
 
@@ -17,9 +19,27 @@ export default function ManageItemModal({ item, onClose }) {
   const out = Number(item.usingQty) || 0;
 
   const [removeN, setRemoveN] = useState(1);
+  const [threshold, setThreshold] = useState(Number(item.lowThreshold) || 0);
+  const [thresholdMsg, setThresholdMsg] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
   const [error, setError] = useState("");
+
+  async function handleSaveThreshold() {
+    setError("");
+    setThresholdMsg("");
+    setBusy(true);
+    try {
+      await updateDoc(doc(db, "items", item.id), {
+        lowThreshold: Math.max(0, Math.floor(Number(threshold) || 0)),
+      });
+      setThresholdMsg("Saved.");
+    } catch (err) {
+      setError(err.message || "Could not save threshold.");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   async function handleRemove() {
     setError("");
@@ -71,6 +91,41 @@ export default function ManageItemModal({ item, onClose }) {
           <span className="font-semibold">{name}</span> · {inStock} in stock
           {item.tracked ? ` · ${out} out` : ""}
         </p>
+
+        <div className="mt-5 rounded-xl border border-gray-200 p-4">
+          <p className="text-sm font-semibold text-gray-800">
+            Low threshold
+          </p>
+          <p className="text-xs text-gray-500">
+            Alert/reorder when In Stock drops below this.
+          </p>
+          <div className="mt-3 flex gap-2">
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              value={threshold}
+              disabled={busy}
+              onChange={(e) =>
+                setThreshold(Math.max(0, Math.floor(+e.target.value || 0)))
+              }
+              {...selectAllProps}
+              className="w-24 rounded-lg border border-gray-300 px-3 py-2.5 text-lg tabular-nums disabled:opacity-50"
+            />
+            <button
+              onClick={handleSaveThreshold}
+              disabled={busy}
+              className="flex-1 rounded-lg bg-blue-600 py-2.5 text-base font-semibold text-white active:bg-blue-700 disabled:opacity-50"
+            >
+              {busy ? "Working…" : "Save threshold"}
+            </button>
+          </div>
+          {thresholdMsg && (
+            <p className="mt-2 text-sm font-medium text-green-700">
+              {thresholdMsg}
+            </p>
+          )}
+        </div>
 
         {item.tracked && (
           <div className="mt-5 rounded-xl border border-gray-200 p-4">

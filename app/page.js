@@ -109,7 +109,7 @@ function InventoryDashboard({ user }) {
   }
 
   // Card "print" action: tracked items reprint ALL their unique unit tags;
-  // untracked items get the single reusable bin tag (the item ID).
+  // untracked items get the single reusable item tag (the item ID).
   async function printItemTags(item) {
     if (!item.tracked) {
       await handlePrintTags([item]);
@@ -201,12 +201,12 @@ function InventoryDashboard({ user }) {
               <button
                 onClick={() => handlePrintTags()}
                 disabled={printing}
-                title="One bin tag per item currently shown (item-level). For individual unit tags, use Add units / Print unit tags on a card."
+                title="One label per item currently shown — scan to update its total count. For individually-tracked equipment, use Add units / Print unit tags on a card."
                 className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-base font-semibold text-gray-800 shadow-sm active:bg-gray-100 disabled:opacity-50"
               >
                 {printing
                   ? "Generating…"
-                  : `Print Bin Tags (${visibleItems.length})`}
+                  : `Print Item Tags (${visibleItems.length})`}
               </button>
               <button
                 onClick={() => signOut(auth)}
@@ -269,7 +269,7 @@ function InventoryDashboard({ user }) {
             >
               {printing
                 ? "Generating…"
-                : `Print Bin Tags (${visibleItems.length})`}
+                : `Print Item Tags (${visibleItems.length})`}
             </button>
             <button
               onClick={() => {
@@ -422,18 +422,18 @@ function InventoryDashboard({ user }) {
                       title={
                         item.tracked
                           ? "Reprint all unique unit tags for this item"
-                          : "One reusable bin tag (the item ID). Same every time by design."
+                          : "One label for this item — scan it to update the total count. Same QR every time by design."
                       }
                       className="flex-1 rounded-lg border border-gray-300 bg-white py-2 text-sm font-semibold text-gray-700 active:bg-gray-100 disabled:opacity-50"
                     >
-                      {item.tracked ? "Print unit tags" : "Print bin tag"}
+                      {item.tracked ? "Print unit tags" : "Print item tag"}
                     </button>
                   </div>
                   <button
                     onClick={() => setManageItem(item)}
                     className="mt-2 w-full rounded-lg py-2 text-xs font-semibold text-gray-500 active:bg-gray-100"
                   >
-                    Manage / remove
+                    Manage (threshold / remove / delete)
                   </button>
                 </div>
               </div>
