@@ -82,8 +82,16 @@ exports.pamsDailySync = onSchedule(
     // Native cell types (numbers as numbers) so PAMS's importer reads
     // quantities correctly.
     const aoa = [headers];
+    let skipped = 0;
     snap.forEach((doc) => {
       const d = doc.data() || {};
+      // PAMS Equipment-Tracking items are owned by PAMS's equipment module
+      // and reject this supplies import ("cannot update to No Tracking
+      // category"). Items flagged syncToPams:false are excluded.
+      if (d.syncToPams === false) {
+        skipped += 1;
+        return;
+      }
       aoa.push([
         str(d.itemName) || doc.id, // ItemName is required by PAMS
         doc.id, // BarCode == Item ID
@@ -117,7 +125,8 @@ exports.pamsDailySync = onSchedule(
       });
 
     logger.info(
-      `PAMS sync wrote ${snap.size} item(s) to gs://<bucket>/${fileName}`
+      `PAMS sync wrote ${snap.size - skipped} item(s) ` +
+        `(skipped ${skipped} not synced to PAMS) to gs://<bucket>/${fileName}`
     );
   }
 );
