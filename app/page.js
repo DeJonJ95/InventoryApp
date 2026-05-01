@@ -174,11 +174,11 @@ function InventoryDashboard({ user }) {
                   pams.error ||
                   (pams.latest
                     ? `Latest: ${pams.latest.name}`
-                    : "PAMS CSV export")
+                    : "PAMS export file (.xlsx)")
                 }
                 className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-base font-semibold text-gray-800 shadow-sm active:bg-gray-100 disabled:opacity-50"
               >
-                {pams.loading ? "…" : "Download CSV"}
+                {pams.loading ? "…" : "Download PAMS file"}
               </button>
               <button
                 onClick={() => setAddOpen(true)}
@@ -279,7 +279,7 @@ function InventoryDashboard({ user }) {
               disabled={pams.loading}
               className="rounded-lg border border-gray-300 bg-white px-4 py-3 text-base font-semibold text-gray-800 active:bg-gray-100 disabled:opacity-50"
             >
-              {pams.loading ? "…" : "Download CSV"}
+              {pams.loading ? "…" : "Download PAMS file"}
             </button>
             <button
               onClick={() => {

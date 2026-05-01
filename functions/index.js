@@ -25,6 +25,7 @@ const { defineSecret } = require("firebase-functions/params");
 const { logger } = require("firebase-functions/v2");
 const admin = require("firebase-admin");
 const { Resend } = require("resend");
+const XLSX = require("xlsx");
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -37,13 +38,6 @@ const FROM_EMAIL = "onboarding@resend.dev";
 const SCHEDULE_TZ = "America/Detroit";
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
-
-// RFC-4180 CSV field escaping: wrap in quotes if it contains comma, quote,
-// or newline; double any embedded quotes.
-function csvEscape(value) {
-  const s = value == null ? "" : String(value);
-  return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-}
 
 // YYYY-MM-DD in the configured timezone (en-CA yields ISO-style date).
 function isoDateInTz(tz) {
@@ -58,7 +52,7 @@ function isoDateInTz(tz) {
 const num = (v) => (typeof v === "number" && !Number.isNaN(v) ? v : 0);
 const str = (v) => (v == null ? "" : String(v));
 
-// ── Function 1: daily CSV sync for the legacy PAMS system ───────────────────
+// ── Function 1: daily PAMS sync (.xlsx — PAMS rejects .csv) ─────────────────
 exports.pamsDailySync = onSchedule(
   {
     schedule: "59 23 * * *", // 11:59 PM daily
@@ -85,35 +79,39 @@ exports.pamsDailySync = onSchedule(
       "Description",
     ];
 
-    const rows = [headers.join(",")];
+    // Native cell types (numbers as numbers) so PAMS's importer reads
+    // quantities correctly.
+    const aoa = [headers];
     snap.forEach((doc) => {
       const d = doc.data() || {};
-      rows.push(
-        [
-          csvEscape(str(d.itemName)),
-          csvEscape(doc.id), // BarCode == Item ID
-          csvEscape(str(d.unit) || "EACH"),
-          csvEscape(num(d.inStock)), // BasicQuantity == on-hand
-          csvEscape(str(d.largeUnit)),
-          csvEscape(num(d.largeUnitConversionRatio)),
-          csvEscape(str(d.storage)),
-          csvEscape(str(d.section)),
-          csvEscape(str(d.shelf)),
-          csvEscape(str(d.description)),
-        ].join(",")
-      );
+      aoa.push([
+        str(d.itemName),
+        doc.id, // BarCode == Item ID
+        str(d.unit) || "EACH",
+        num(d.inStock), // BasicQuantity == on-hand
+        str(d.largeUnit),
+        num(d.largeUnitConversionRatio),
+        str(d.storage),
+        str(d.section),
+        str(d.shelf),
+        str(d.description),
+      ]);
     });
 
-    // Trailing newline keeps line-based legacy parsers happy.
-    const csv = rows.join("\r\n") + "\r\n";
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+    const wb = XLSX.utils.book_new();
+    // Sheet name mirrors the PAMS import template ("sheet0").
+    XLSX.utils.book_append_sheet(wb, ws, "sheet0");
+    const buf = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
 
-    const fileName = `exports/pams_sync_${isoDateInTz(SCHEDULE_TZ)}.csv`;
+    const fileName = `exports/pams_sync_${isoDateInTz(SCHEDULE_TZ)}.xlsx`;
     await admin
       .storage()
       .bucket()
       .file(fileName)
-      .save(csv, {
-        contentType: "text/csv",
+      .save(buf, {
+        contentType:
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         resumable: false,
         metadata: { cacheControl: "no-store" },
       });
