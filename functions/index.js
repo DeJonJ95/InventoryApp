@@ -85,9 +85,9 @@ exports.pamsDailySync = onSchedule(
     snap.forEach((doc) => {
       const d = doc.data() || {};
       aoa.push([
-        str(d.itemName),
+        str(d.itemName) || doc.id, // ItemName is required by PAMS
         doc.id, // BarCode == Item ID
-        str(d.unit) || "EACH",
+        str(d.unit) || "EACH", // BasicUnit is required by PAMS
         num(d.inStock), // BasicQuantity == on-hand
         str(d.largeUnit),
         num(d.largeUnitConversionRatio),
@@ -100,18 +100,18 @@ exports.pamsDailySync = onSchedule(
 
     const ws = XLSX.utils.aoa_to_sheet(aoa);
     const wb = XLSX.utils.book_new();
-    // Sheet name mirrors the PAMS import template ("sheet0").
-    XLSX.utils.book_append_sheet(wb, ws, "sheet0");
-    const buf = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
+    // Match the official PAMS template exactly: sheet "Sheet1", and a
+    // legacy binary .xls (BIFF8) — PAMS rejects .xlsx despite its UI text.
+    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+    const buf = XLSX.write(wb, { type: "buffer", bookType: "biff8" });
 
-    const fileName = `exports/pams_sync_${isoDateInTz(SCHEDULE_TZ)}.xlsx`;
+    const fileName = `exports/pams_sync_${isoDateInTz(SCHEDULE_TZ)}.xls`;
     await admin
       .storage()
       .bucket()
       .file(fileName)
       .save(buf, {
-        contentType:
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        contentType: "application/vnd.ms-excel",
         resumable: false,
         metadata: { cacheControl: "no-store" },
       });
