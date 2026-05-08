@@ -404,6 +404,11 @@ function InventoryDashboard({ user }) {
                       out
                     </p>
                   )}
+                  {item.syncToPams === true && (
+                    <p className="mt-1 text-xs font-semibold text-blue-600">
+                      Reorder via PAMS
+                    </p>
+                  )}
                   {isLow && (
                     <p className="mt-1 text-sm font-semibold text-red-600">
                       Low stock — reorder

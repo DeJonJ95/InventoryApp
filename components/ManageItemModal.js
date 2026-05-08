@@ -20,6 +20,7 @@ export default function ManageItemModal({ item, onClose }) {
   const inStock = Number(item.inStock) || 0;
   const out = Number(item.usingQty) || 0;
 
+  const [syncPams, setSyncPams] = useState(item.syncToPams === true);
   const [removeN, setRemoveN] = useState(1);
   const [threshold, setThreshold] = useState(Number(item.lowThreshold) || 0);
   const [thresholdMsg, setThresholdMsg] = useState("");
@@ -27,6 +28,18 @@ export default function ManageItemModal({ item, onClose }) {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
   const [error, setError] = useState("");
+
+  async function toggleSyncPams() {
+    const next = !syncPams;
+    setSyncPams(next);
+    setError("");
+    try {
+      await updateDoc(doc(db, "items", item.id), { syncToPams: next });
+    } catch (err) {
+      setSyncPams(!next); // revert on failure
+      setError(err.message || "Could not update PAMS setting.");
+    }
+  }
 
   async function handlePhoto(e) {
     const file = e.target.files?.[0];
@@ -111,6 +124,33 @@ export default function ManageItemModal({ item, onClose }) {
           <span className="font-semibold">{name}</span> · {inStock} in stock
           {item.tracked ? ` · ${out} out` : ""}
         </p>
+
+        <div className="mt-5 rounded-xl border border-gray-200 p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-semibold text-gray-800">
+                Reorder via PAMS
+              </p>
+              <p className="text-xs text-gray-500">
+                Include this consumable in the nightly PAMS file.
+              </p>
+            </div>
+            <button
+              onClick={toggleSyncPams}
+              role="switch"
+              aria-checked={syncPams}
+              className={`relative h-7 w-12 shrink-0 rounded-full transition ${
+                syncPams ? "bg-blue-600" : "bg-gray-300"
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 h-6 w-6 rounded-full bg-white transition ${
+                  syncPams ? "left-[22px]" : "left-0.5"
+                }`}
+              />
+            </button>
+          </div>
+        </div>
 
         <div className="mt-5 rounded-xl border border-gray-200 p-4">
           <p className="text-sm font-semibold text-gray-800">Photo</p>

@@ -35,6 +35,10 @@ const resendApiKey = defineSecret("RESEND_API_KEY");
 // ── Hardcoded settings ──────────────────────────────────────────────────────
 const MANAGER_EMAIL = "dejonj95@gmail.com";
 const FROM_EMAIL = "onboarding@resend.dev";
+// PAMS requires a Storage value on any row carrying a BasicQuantity.
+// This code MUST exist as a Storage location in PAMS. Import these under
+// the "Consumable" category.
+const PAMS_STORAGE = "WH";
 const SCHEDULE_TZ = "America/Detroit";
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -85,10 +89,10 @@ exports.pamsDailySync = onSchedule(
     let skipped = 0;
     snap.forEach((doc) => {
       const d = doc.data() || {};
-      // PAMS Equipment-Tracking items are owned by PAMS's equipment module
-      // and reject this supplies import ("cannot update to No Tracking
-      // category"). Items flagged syncToPams:false are excluded.
-      if (d.syncToPams === false) {
+      // Only consumables the manager flagged "Reorder via PAMS" sync.
+      // Everything else (equipment/in-out items, the bulk-seeded catalog)
+      // is excluded — PAMS only needs reorderable consumables.
+      if (d.syncToPams !== true) {
         skipped += 1;
         return;
       }
@@ -99,7 +103,7 @@ exports.pamsDailySync = onSchedule(
         num(d.inStock), // BasicQuantity == on-hand
         str(d.largeUnit),
         num(d.largeUnitConversionRatio),
-        str(d.storage),
+        str(d.storage) || PAMS_STORAGE, // PAMS requires Storage w/ quantity
         str(d.section),
         str(d.shelf),
         str(d.description),

@@ -52,6 +52,7 @@ export default function AddItemModal({ onClose }) {
         description: "",
         largeUnit: "",
         largeUnitConversionRatio: 0,
+        syncToPams: true, // new items are usually reorderable consumables
       });
       onClose(); // real-time grid listener picks up the new item automatically
     } catch (err) {
