@@ -155,7 +155,7 @@ export default function ManageItemModal({ item, onClose }) {
               <p className="text-xs text-gray-500">
                 {item.tracked
                   ? "Unavailable — tracked equipment isn't a PAMS consumable. PAMS rejects equipment in the supplies import."
-                  : "Include this consumable in the nightly PAMS file. Only for vendor-reordered supplies, never equipment."}
+                  : "Include this consumable in the nightly PAMS file. Only for vendor-reordered supplies, never equipment. The item must be in PAMS's Consumable (non-tracking) category, or PAMS rejects it — re-categorize it in PAMS first if needed."}
               </p>
             </div>
             <button

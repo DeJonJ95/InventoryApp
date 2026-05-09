@@ -14,6 +14,7 @@ import AddUnitsModal from "../components/AddUnitsModal";
 import { listAssetTags } from "../lib/assets";
 import LocationsModal from "../components/LocationsModal";
 import TrackingModal from "../components/TrackingModal";
+import HelpModal from "../components/HelpModal";
 import ManageItemModal from "../components/ManageItemModal";
 
 export default function DashboardPage() {
@@ -47,6 +48,7 @@ function InventoryDashboard({ user }) {
   const [unitsItem, setUnitsItem] = useState(null);
   const [locationsOpen, setLocationsOpen] = useState(false);
   const [trackingOpen, setTrackingOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
   const [manageItem, setManageItem] = useState(null);
   const [printing, setPrinting] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -199,6 +201,12 @@ function InventoryDashboard({ user }) {
                 Tracking
               </button>
               <button
+                onClick={() => setHelpOpen(true)}
+                className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-base font-semibold text-gray-800 shadow-sm active:bg-gray-100"
+              >
+                Help
+              </button>
+              <button
                 onClick={() => handlePrintTags()}
                 disabled={printing}
                 title="One label per item currently shown — scan to update its total count. For individually-tracked equipment, use Add units / Print unit tags on a card."
@@ -258,6 +266,15 @@ function InventoryDashboard({ user }) {
               className="rounded-lg border border-gray-300 bg-white px-4 py-3 text-base font-semibold text-gray-800 active:bg-gray-100"
             >
               Tracking
+            </button>
+            <button
+              onClick={() => {
+                setMenuOpen(false);
+                setHelpOpen(true);
+              }}
+              className="rounded-lg border border-gray-300 bg-white px-4 py-3 text-base font-semibold text-gray-800 active:bg-gray-100"
+            >
+              Help
             </button>
             <button
               onClick={() => {
@@ -457,6 +474,7 @@ function InventoryDashboard({ user }) {
       {trackingOpen && (
         <TrackingModal onClose={() => setTrackingOpen(false)} />
       )}
+      {helpOpen && <HelpModal onClose={() => setHelpOpen(false)} />}
       {manageItem && (
         <ManageItemModal
           item={manageItem}
