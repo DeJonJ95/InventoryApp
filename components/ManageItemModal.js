@@ -153,20 +153,23 @@ export default function ManageItemModal({ item, onClose }) {
                 Reorder via PAMS
               </p>
               <p className="text-xs text-gray-500">
-                Include this consumable in the nightly PAMS file.
+                {item.tracked
+                  ? "Unavailable — tracked equipment isn't a PAMS consumable. PAMS rejects equipment in the supplies import."
+                  : "Include this consumable in the nightly PAMS file. Only for vendor-reordered supplies, never equipment."}
               </p>
             </div>
             <button
               onClick={toggleSyncPams}
               role="switch"
-              aria-checked={syncPams}
-              className={`relative h-7 w-12 shrink-0 rounded-full transition ${
-                syncPams ? "bg-blue-600" : "bg-gray-300"
+              aria-checked={syncPams && !item.tracked}
+              disabled={item.tracked}
+              className={`relative h-7 w-12 shrink-0 rounded-full transition disabled:opacity-40 ${
+                syncPams && !item.tracked ? "bg-blue-600" : "bg-gray-300"
               }`}
             >
               <span
                 className={`absolute top-0.5 h-6 w-6 rounded-full bg-white transition ${
-                  syncPams ? "left-[22px]" : "left-0.5"
+                  syncPams && !item.tracked ? "left-[22px]" : "left-0.5"
                 }`}
               />
             </button>
