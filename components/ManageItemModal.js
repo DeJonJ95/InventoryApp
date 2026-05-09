@@ -5,7 +5,12 @@ import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { removeUnusedUnits, deleteItemCompletely } from "../lib/assets";
 import { uploadItemPhoto } from "../lib/photo";
-import { imgUrl, FALLBACK_IMG } from "../lib/items";
+import {
+  imgUrl,
+  FALLBACK_IMG,
+  PAMS_STORAGES,
+  DEFAULT_STORAGE,
+} from "../lib/items";
 import { selectAllProps } from "../lib/ui";
 
 /**
@@ -21,6 +26,9 @@ export default function ManageItemModal({ item, onClose }) {
   const out = Number(item.usingQty) || 0;
 
   const [syncPams, setSyncPams] = useState(item.syncToPams === true);
+  const [storageLoc, setStorageLoc] = useState(
+    PAMS_STORAGES.includes(item.storage) ? item.storage : DEFAULT_STORAGE
+  );
   const [removeN, setRemoveN] = useState(1);
   const [threshold, setThreshold] = useState(Number(item.lowThreshold) || 0);
   const [thresholdMsg, setThresholdMsg] = useState("");
@@ -38,6 +46,18 @@ export default function ManageItemModal({ item, onClose }) {
     } catch (err) {
       setSyncPams(!next); // revert on failure
       setError(err.message || "Could not update PAMS setting.");
+    }
+  }
+
+  async function changeStorage(value) {
+    const prev = storageLoc;
+    setStorageLoc(value);
+    setError("");
+    try {
+      await updateDoc(doc(db, "items", item.id), { storage: value });
+    } catch (err) {
+      setStorageLoc(prev);
+      setError(err.message || "Could not update storage.");
     }
   }
 
@@ -149,6 +169,26 @@ export default function ManageItemModal({ item, onClose }) {
                 }`}
               />
             </button>
+          </div>
+
+          <div className="mt-4 flex items-center justify-between border-t pt-4">
+            <div>
+              <p className="text-sm font-semibold text-gray-800">Storage</p>
+              <p className="text-xs text-gray-500">
+                Where it's stored (sent to PAMS with the quantity).
+              </p>
+            </div>
+            <select
+              value={storageLoc}
+              onChange={(e) => changeStorage(e.target.value)}
+              className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-base focus:border-blue-500 focus:outline-none"
+            >
+              {PAMS_STORAGES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
