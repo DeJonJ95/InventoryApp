@@ -38,7 +38,7 @@ const FROM_EMAIL = "onboarding@resend.dev";
 // PAMS requires a Storage value on any row carrying a BasicQuantity.
 // This code MUST exist as a Storage location in PAMS. Import these under
 // the "Consumable" category.
-const PAMS_STORAGE = "WH";
+const PAMS_STORAGE = "WHS";
 const SCHEDULE_TZ = "America/Detroit";
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
