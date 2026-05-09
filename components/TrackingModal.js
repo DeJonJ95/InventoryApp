@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { watchCheckedOut, listAssetHistory } from "../lib/assets";
+import {
+  watchCheckedOut,
+  listAssetHistory,
+  checkInMany,
+} from "../lib/assets";
 
 function fmt(d) {
   if (!d) return "—";
@@ -20,6 +24,8 @@ export default function TrackingModal({ onClose }) {
   // Out-by-location (live)
   const [groups, setGroups] = useState([]);
   const [expanded, setExpanded] = useState(null);
+
+  const [checkInBusy, setCheckInBusy] = useState(false);
 
   // Unit history (on demand)
   const [assetId, setAssetId] = useState("");
@@ -55,6 +61,22 @@ export default function TrackingModal({ onClose }) {
     setAssetId(u.id);
     setTab("history");
     loadHistory(u.id);
+  }
+
+  // Check units back in without scanning (managers only).
+  async function checkIn(ids, confirmMsg) {
+    if (ids.length === 0 || checkInBusy) return;
+    if (confirmMsg && !window.confirm(confirmMsg)) return;
+    setCheckInBusy(true);
+    try {
+      const { done, failed } = await checkInMany(ids);
+      // The live watcher refreshes the list automatically.
+      if (failed > 0) {
+        alert(`Checked in ${done}. ${failed} could not be checked in.`);
+      }
+    } finally {
+      setCheckInBusy(false);
+    }
   }
 
   const totalOut = groups.reduce((n, g) => n + g.units.length, 0);
@@ -105,27 +127,47 @@ export default function TrackingModal({ onClose }) {
               )}
               {groups.map((g) => (
                 <div key={g.location} className="border-b">
-                  <button
-                    onClick={() =>
-                      setExpanded(expanded === g.location ? null : g.location)
-                    }
-                    className="flex w-full items-center justify-between py-3 text-left"
-                  >
-                    <span className="font-semibold text-gray-900">
-                      {g.location}
-                    </span>
-                    <span className="text-sm text-gray-500">
-                      {g.units.length} unit{g.units.length === 1 ? "" : "s"} ▾
-                    </span>
-                  </button>
+                  <div className="flex items-center gap-2 py-3">
+                    <button
+                      onClick={() =>
+                        setExpanded(
+                          expanded === g.location ? null : g.location
+                        )
+                      }
+                      className="flex flex-1 items-center justify-between text-left"
+                    >
+                      <span className="font-semibold text-gray-900">
+                        {g.location}
+                      </span>
+                      <span className="text-sm text-gray-500">
+                        {g.units.length} unit
+                        {g.units.length === 1 ? "" : "s"} ▾
+                      </span>
+                    </button>
+                    <button
+                      onClick={() =>
+                        checkIn(
+                          g.units.map((u) => u.id),
+                          `Check in all ${g.units.length} unit(s) from ${g.location}?`
+                        )
+                      }
+                      disabled={checkInBusy}
+                      className="shrink-0 rounded-lg bg-green-600 px-3 py-1.5 text-sm font-semibold text-white active:bg-green-700 disabled:opacity-50"
+                    >
+                      {checkInBusy ? "…" : "Check in all"}
+                    </button>
+                  </div>
                   {expanded === g.location && (
                     <ul className="pb-3">
                       {g.units.map((u) => (
-                        <li key={u.id}>
+                        <li
+                          key={u.id}
+                          className="flex items-center gap-2 py-1"
+                        >
                           <button
                             onClick={() => viewUnit(u)}
                             title="View this unit's history"
-                            className="flex w-full items-center justify-between gap-3 rounded-md px-2 py-1.5 text-left text-sm active:bg-gray-100 hover:bg-gray-50"
+                            className="flex flex-1 items-center justify-between gap-3 rounded-md px-2 py-1.5 text-left text-sm active:bg-gray-100 hover:bg-gray-50"
                           >
                             <span className="truncate text-blue-600 underline">
                               {u.itemName}
@@ -133,6 +175,13 @@ export default function TrackingModal({ onClose }) {
                             <span className="shrink-0 text-gray-400">
                               {u.id} ›
                             </span>
+                          </button>
+                          <button
+                            onClick={() => checkIn([u.id])}
+                            disabled={checkInBusy}
+                            className="shrink-0 rounded-md border border-green-600 px-2.5 py-1 text-xs font-semibold text-green-700 active:bg-green-50 disabled:opacity-50"
+                          >
+                            Check in
                           </button>
                         </li>
                       ))}
