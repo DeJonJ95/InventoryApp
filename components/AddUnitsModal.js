@@ -38,10 +38,10 @@ export default function AddUnitsModal({ item, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 sm:items-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm rounded-t-2xl bg-white p-6 sm:rounded-2xl"
+        className="w-full max-w-sm max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6"
       >
         <h2 className="text-xl font-bold text-gray-900">Add Tracked Units</h2>
         <p className="mt-1 text-sm text-gray-500">

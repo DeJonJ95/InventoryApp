@@ -491,8 +491,8 @@ export default function Scanner({ onClose }) {
 
 function SubModal({ children }) {
   return (
-    <div className="fixed inset-0 z-10 flex items-end justify-center bg-black/60 sm:items-center">
-      <div className="w-full max-w-sm rounded-t-2xl bg-white p-6 sm:rounded-2xl">
+    <div className="fixed inset-0 z-10 flex items-center justify-center bg-black/60 p-4">
+      <div className="w-full max-w-sm max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6">
         {children}
       </div>
     </div>
