@@ -28,8 +28,11 @@ export default function DashboardPage() {
 
   if (user === undefined) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-gray-50">
-        <p className="text-gray-500">Loading…</p>
+      <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-100 via-white to-amber-50/30">
+        <div className="flex flex-col items-center gap-3 text-slate-400">
+          <span className="animate-spin text-3xl">⏳</span>
+          <p className="text-base font-medium">Loading…</p>
+        </div>
       </main>
     );
   }
@@ -152,158 +155,133 @@ function InventoryDashboard({ user }) {
   }, []);
 
   return (
-    <main className="min-h-screen bg-gray-50 pb-24">
-      <header className="sticky top-0 z-20 border-b bg-white px-4 py-3 shadow-sm sm:px-5 sm:py-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
-            Inventory
-          </h1>
+    <main className="min-h-screen bg-gradient-to-br from-slate-100 via-white to-amber-50/30 pb-24">
+      {/* ── Header ──────────────────────────────────────────────────── */}
+      <header className="sticky top-0 z-20 bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 px-4 py-3 text-white shadow-lg sm:px-5 sm:py-4">
+        <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Primary action — always visible */}
+            <span className="text-2xl">📦</span>
+            <h1 className="text-xl font-bold tracking-tight sm:text-2xl">
+              Inventory
+            </h1>
+            {!loading && !error && items.length > 0 && (
+              <span className="ml-2 hidden rounded-full bg-white/15 px-3 py-0.5 text-xs font-semibold sm:inline">
+                {items.length} item{items.length !== 1 ? 's' : ''}
+              </span>
+            )}
+          </div>
+
+          {/* Desktop: action row */}
+          <div className="hidden items-center gap-2 sm:flex">
             <button
               onClick={() => setScannerOpen(true)}
-              className="rounded-lg bg-blue-600 px-4 py-2.5 text-base font-semibold text-white shadow active:bg-blue-700 sm:px-5"
+              className="rounded-lg bg-indigo-500 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-indigo-500/25 transition hover:bg-indigo-400 hover:shadow-lg active:scale-95"
             >
               Scan Item
             </button>
-
-            {/* Desktop: full action row */}
-            <div className="hidden items-center gap-3 sm:flex">
-              <button
-                onClick={pams.download}
-                disabled={pams.loading}
-                title={
-                  pams.error ||
-                  (pams.latest
-                    ? `Latest: ${pams.latest.name}`
-                    : "PAMS export file (.xls)")
-                }
-                className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-base font-semibold text-gray-800 shadow-sm active:bg-gray-100 disabled:opacity-50"
-              >
-                {pams.loading ? "…" : "Download PAMS file"}
-              </button>
-              <button
-                onClick={() => setAddOpen(true)}
-                className="rounded-lg bg-green-600 px-5 py-2.5 text-base font-semibold text-white shadow active:bg-green-700"
-              >
-                Add New Item
-              </button>
-              <button
-                onClick={() => setLocationsOpen(true)}
-                className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-base font-semibold text-gray-800 shadow-sm active:bg-gray-100"
-              >
-                Locations
-              </button>
-              <button
-                onClick={() => setTrackingOpen(true)}
-                className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-base font-semibold text-gray-800 shadow-sm active:bg-gray-100"
-              >
-                Tracking
-              </button>
-              <button
-                onClick={() => setHelpOpen(true)}
-                className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-base font-semibold text-gray-800 shadow-sm active:bg-gray-100"
-              >
-                Help
-              </button>
-              <button
-                onClick={() => handlePrintTags()}
-                disabled={printing}
-                title="One label per item currently shown — scan to update its total count. For individually-tracked equipment, use Add units / Print unit tags on a card."
-                className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-base font-semibold text-gray-800 shadow-sm active:bg-gray-100 disabled:opacity-50"
-              >
-                {printing
-                  ? "Generating…"
-                  : `Print Item Tags (${visibleItems.length})`}
-              </button>
-              <button
-                onClick={() => signOut(auth)}
-                title={user.email || "Sign out"}
-                className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-base font-semibold text-gray-600 shadow-sm active:bg-gray-100"
-              >
-                Sign Out
-              </button>
-            </div>
-
-            {/* Mobile: overflow menu */}
             <button
-              onClick={() => setMenuOpen((v) => !v)}
-              aria-label="More actions"
-              aria-expanded={menuOpen}
-              className="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-xl font-bold leading-none text-gray-700 active:bg-gray-100 sm:hidden"
+              onClick={() => setAddOpen(true)}
+              className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-emerald-500/25 transition hover:bg-emerald-400 hover:shadow-lg active:scale-95"
             >
-              ☰
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile dropdown panel */}
-        {menuOpen && (
-          <div className="mt-3 grid gap-2 sm:hidden">
-            <button
-              onClick={() => {
-                setMenuOpen(false);
-                setAddOpen(true);
-              }}
-              className="rounded-lg bg-green-600 px-4 py-3 text-base font-semibold text-white active:bg-green-700"
-            >
-              Add New Item
+              + New Item
             </button>
             <button
-              onClick={() => {
-                setMenuOpen(false);
-                setLocationsOpen(true);
-              }}
-              className="rounded-lg border border-gray-300 bg-white px-4 py-3 text-base font-semibold text-gray-800 active:bg-gray-100"
+              onClick={() => setLocationsOpen(true)}
+              className="rounded-lg bg-white/10 px-3 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/20 active:scale-95"
             >
               Locations
             </button>
             <button
-              onClick={() => {
-                setMenuOpen(false);
-                setTrackingOpen(true);
-              }}
-              className="rounded-lg border border-gray-300 bg-white px-4 py-3 text-base font-semibold text-gray-800 active:bg-gray-100"
+              onClick={() => setTrackingOpen(true)}
+              className="rounded-lg bg-white/10 px-3 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/20 active:scale-95"
             >
               Tracking
             </button>
             <button
-              onClick={() => {
-                setMenuOpen(false);
-                setHelpOpen(true);
-              }}
-              className="rounded-lg border border-gray-300 bg-white px-4 py-3 text-base font-semibold text-gray-800 active:bg-gray-100"
+              onClick={() => handlePrintTags()}
+              disabled={printing}
+              className="rounded-lg bg-white/10 px-3 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/20 active:scale-95 disabled:opacity-50"
+            >
+              {printing ? '…' : `Print Tags (${visibleItems.length})`}
+            </button>
+            <button
+              onClick={pams.download}
+              disabled={pams.loading}
+              className="rounded-lg bg-white/10 px-3 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/20 active:scale-95 disabled:opacity-50"
+              title={pams.latest ? `Latest: ${pams.latest.name}` : 'PAMS export file (.xls)'}
+            >
+              PAMS
+            </button>
+            <button
+              onClick={() => setHelpOpen(true)}
+              className="rounded-lg bg-white/10 px-3 py-2 text-sm font-semibold text-white/70 transition hover:bg-white/20 active:scale-95"
             >
               Help
             </button>
             <button
-              onClick={() => {
-                setMenuOpen(false);
-                handlePrintTags();
-              }}
+              onClick={() => signOut(auth)}
+              title={user.email || 'Sign out'}
+              className="ml-2 rounded-lg bg-white/5 px-3 py-2 text-sm font-semibold text-white/50 transition hover:bg-white/15 hover:text-white/80 active:scale-95"
+            >
+              Sign Out
+            </button>
+          </div>
+
+          {/* Mobile: hamburger */}
+          <button
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-label="More actions"
+            aria-expanded={menuOpen}
+            className="rounded-lg bg-white/10 px-3 py-2.5 text-lg font-bold leading-none text-white active:bg-white/20 sm:hidden"
+          >
+            {menuOpen ? '✕' : '☰'}
+          </button>
+        </div>
+
+        {/* Mobile dropdown panel */}
+        {menuOpen && (
+          <div className="mx-auto mt-3 grid max-w-7xl gap-2 sm:hidden">
+            <button
+              onClick={() => { setMenuOpen(false); setAddOpen(true); }}
+              className="rounded-lg bg-emerald-500 px-4 py-3 text-base font-semibold text-white shadow-md active:bg-emerald-600"
+            >
+              + Add New Item
+            </button>
+            <button
+              onClick={() => { setMenuOpen(false); setLocationsOpen(true); }}
+              className="rounded-lg bg-white/10 px-4 py-3 text-base font-semibold text-white active:bg-white/20"
+            >
+              Locations
+            </button>
+            <button
+              onClick={() => { setMenuOpen(false); setTrackingOpen(true); }}
+              className="rounded-lg bg-white/10 px-4 py-3 text-base font-semibold text-white active:bg-white/20"
+            >
+              Tracking
+            </button>
+            <button
+              onClick={() => { setMenuOpen(false); handlePrintTags(); }}
               disabled={printing}
-              className="rounded-lg border border-gray-300 bg-white px-4 py-3 text-base font-semibold text-gray-800 active:bg-gray-100 disabled:opacity-50"
+              className="rounded-lg bg-white/10 px-4 py-3 text-base font-semibold text-white active:bg-white/20 disabled:opacity-50"
             >
-              {printing
-                ? "Generating…"
-                : `Print Item Tags (${visibleItems.length})`}
+              {printing ? 'Generating…' : `Print Item Tags (${visibleItems.length})`}
             </button>
             <button
-              onClick={() => {
-                setMenuOpen(false);
-                pams.download();
-              }}
+              onClick={() => { setMenuOpen(false); pams.download(); }}
               disabled={pams.loading}
-              className="rounded-lg border border-gray-300 bg-white px-4 py-3 text-base font-semibold text-gray-800 active:bg-gray-100 disabled:opacity-50"
+              className="rounded-lg bg-white/10 px-4 py-3 text-base font-semibold text-white active:bg-white/20 disabled:opacity-50"
             >
-              {pams.loading ? "…" : "Download PAMS file"}
+              {pams.loading ? '…' : 'Download PAMS file'}
             </button>
             <button
-              onClick={() => {
-                setMenuOpen(false);
-                signOut(auth);
-              }}
-              className="rounded-lg border border-gray-300 bg-white px-4 py-3 text-base font-semibold text-gray-600 active:bg-gray-100"
+              onClick={() => { setMenuOpen(false); setHelpOpen(true); }}
+              className="rounded-lg bg-white/10 px-4 py-3 text-base font-semibold text-white/70 active:bg-white/20"
+            >
+              Help
+            </button>
+            <button
+              onClick={() => { setMenuOpen(false); signOut(auth); }}
+              className="rounded-lg bg-white/5 px-4 py-3 text-base font-semibold text-white/50 active:bg-white/15"
             >
               Sign Out
             </button>
@@ -312,58 +290,107 @@ function InventoryDashboard({ user }) {
       </header>
 
       <div className="mx-auto max-w-7xl px-4 py-6">
+        {/* ── Stats bar ─────────────────────────────────────────────── */}
         {!loading && !error && items.length > 0 && (
-          <div className="mb-6 flex flex-wrap items-center gap-3">
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by name or ID…"
-              className="min-w-[220px] flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-base focus:border-blue-500 focus:outline-none"
-            />
+          <div className="mb-5 grid grid-cols-3 gap-3 sm:grid-cols-4">
+            {[
+              { label: 'Total', value: items.length, color: 'from-slate-600 to-slate-700', icon: '📋' },
+              { label: 'In Stock', value: items.reduce((s, i) => s + (Number(i.inStock) || 0), 0), color: 'from-emerald-500 to-emerald-600', icon: '✅' },
+              { label: 'Low Stock', value: items.filter((i) => (Number(i.inStock) || 0) < (Number(i.lowThreshold) || 0)).length, color: 'from-red-500 to-rose-500', icon: '⚠️' },
+              { label: 'On Order', value: items.reduce((s, i) => s + (Number(i.onOrder) || 0), 0), color: 'from-amber-500 to-orange-500', icon: '🚚' },
+            ].map((stat) => (
+              <div
+                key={stat.label}
+                className={`rounded-xl bg-gradient-to-br ${stat.color} p-3 text-white shadow-md sm:p-4`}
+              >
+                <p className="text-xs font-semibold opacity-80 sm:text-sm">{stat.label}</p>
+                <p className="mt-0.5 text-2xl font-extrabold tabular-nums sm:text-3xl">
+                  {stat.value}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ── Search + filters ──────────────────────────────────────── */}
+        {!loading && !error && items.length > 0 && (
+          <div className="mb-5 flex flex-wrap items-center gap-2.5">
+            <div className="relative min-w-[200px] flex-1">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">🔍</span>
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search by name or ID…"
+                className="w-full rounded-xl border-2 border-slate-200 bg-white py-2.5 pl-9 pr-4 text-base shadow-sm transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+              />
+            </div>
             <button
               onClick={() => setLowOnly((v) => !v)}
-              className={`rounded-lg border px-4 py-2.5 text-sm font-semibold ${
+              className={`rounded-full border-2 px-4 py-2 text-sm font-semibold transition active:scale-95 ${
                 lowOnly
-                  ? "border-red-600 bg-red-50 text-red-700"
-                  : "border-gray-300 bg-white text-gray-700"
+                  ? 'border-red-500 bg-red-50 text-red-700 shadow-sm'
+                  : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
               }`}
             >
-              Low stock only
+              ⚠️ Low stock
             </button>
             <button
               onClick={() => setUncountedOnly((v) => !v)}
-              className={`rounded-lg border px-4 py-2.5 text-sm font-semibold ${
+              className={`rounded-full border-2 px-4 py-2 text-sm font-semibold transition active:scale-95 ${
                 uncountedOnly
-                  ? "border-blue-600 bg-blue-50 text-blue-700"
-                  : "border-gray-300 bg-white text-gray-700"
+                  ? 'border-indigo-500 bg-indigo-50 text-indigo-700 shadow-sm'
+                  : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
               }`}
             >
-              Uncounted (0) only
+              0️⃣ Uncounted
             </button>
-            <span className="text-sm text-gray-500">
-              {visibleItems.length} of {items.length}
-            </span>
+            {visibleItems.length !== items.length && (
+              <span className="text-sm font-medium text-slate-500">
+                Showing {visibleItems.length} of {items.length}
+              </span>
+            )}
           </div>
         )}
 
         {loading && (
-          <p className="py-20 text-center text-gray-500">Loading inventory…</p>
+          <div className="flex flex-col items-center justify-center py-24 text-slate-400">
+            <span className="animate-spin text-4xl">⏳</span>
+            <p className="mt-3 text-base font-medium">Loading inventory…</p>
+          </div>
         )}
 
         {error && (
-          <p className="py-20 text-center text-red-600">{error}</p>
+          <div className="flex flex-col items-center justify-center py-24 text-red-500">
+            <span className="text-4xl">⚠️</span>
+            <p className="mt-3 text-base font-medium">{error}</p>
+          </div>
         )}
 
         {!loading && !error && items.length === 0 && (
-          <p className="py-20 text-center text-gray-500">
-            No items in inventory yet.
-          </p>
+          <div className="flex flex-col items-center justify-center py-24 text-slate-400">
+            <span className="text-5xl">📦</span>
+            <p className="mt-4 text-lg font-semibold">No items yet</p>
+            <p className="mt-1 text-sm">Tap Scan or Add New Item to get started.</p>
+          </div>
         )}
 
         {!loading && !error && items.length > 0 && visibleItems.length === 0 && (
-          <p className="py-20 text-center text-gray-500">
-            No items match the search or filters.
-          </p>
+          <div className="flex flex-col items-center justify-center py-24 text-slate-400">
+            <span className="text-4xl">🔍</span>
+            <p className="mt-3 text-base font-medium">No items match</p>
+            <p className="mt-1 text-sm">Try adjusting your search or filters.</p>
+          </div>
+        )}
+
+        {/* ── Mobile floating scan button ────────────────────────────── */}
+        {!scannerOpen && (
+          <button
+            onClick={() => setScannerOpen(true)}
+            className="fixed bottom-6 right-6 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-indigo-500 text-white shadow-lg shadow-indigo-500/30 transition hover:bg-indigo-400 hover:shadow-xl active:scale-90 sm:hidden"
+            aria-label="Scan item"
+          >
+            <span className="text-2xl">📷</span>
+          </button>
         )}
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -371,91 +398,116 @@ function InventoryDashboard({ user }) {
             const inStock = Number(item.inStock) || 0;
             const lowThreshold = Number(item.lowThreshold) || 0;
             const onOrder = Number(item.onOrder) || 0;
-            const isLow = inStock < lowThreshold;
+            const isLow = lowThreshold > 0 && inStock < lowThreshold;
+            const statusColor = isLow
+              ? 'from-red-500 to-rose-500'
+              : onOrder > 0
+                ? 'from-amber-400 to-orange-400'
+                : 'from-emerald-400 to-teal-400';
 
             return (
               <div
                 key={item.id}
-                className={`overflow-hidden rounded-xl bg-white shadow-sm transition ${
-                  isLow ? "border-4 border-red-600" : "border border-gray-200"
-                }`}
+                className="group overflow-hidden rounded-2xl bg-white shadow-md ring-1 ring-slate-200/60 transition hover:shadow-xl hover:-translate-y-1 active:scale-[0.98]"
               >
-                <img
-                  src={imgUrl(item.id, item.photoVersion)}
-                  alt={item.itemName || item.id}
-                  onError={(e) => {
-                    e.currentTarget.onerror = null;
-                    e.currentTarget.src = FALLBACK_IMG;
-                  }}
-                  className="h-44 w-full bg-gray-100 object-cover"
-                />
+                {/* Accent bar at top */}
+                <div className={`h-1.5 bg-gradient-to-r ${statusColor}`} />
+
+                <div className="relative">
+                  <img
+                    src={imgUrl(item.id, item.photoVersion)}
+                    alt={item.itemName || item.id}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = FALLBACK_IMG;
+                    }}
+                    className="h-40 w-full bg-gradient-to-br from-slate-100 to-slate-200 object-cover sm:h-44"
+                  />
+                  {isLow && (
+                    <span className="absolute left-3 top-3 rounded-full bg-red-500 px-2.5 py-0.5 text-xs font-bold text-white shadow-md">
+                      LOW
+                    </span>
+                  )}
+                  {item.tracked && (
+                    <span className="absolute right-3 top-3 rounded-full bg-slate-800/70 px-2.5 py-0.5 text-xs font-bold text-white backdrop-blur-sm">
+                      Tracked
+                    </span>
+                  )}
+                </div>
+
                 <div className="p-4">
-                  <h2 className="truncate text-lg font-bold text-gray-900">
+                  <h2 className="truncate text-base font-bold text-slate-800 sm:text-lg">
                     {item.itemName || item.id}
                   </h2>
-                  <p className="mt-1 text-sm text-gray-500">
-                    Threshold: {lowThreshold}
+                  <p className="truncate text-xs font-medium text-slate-400">
+                    {item.id}
                   </p>
-                  <p className="mt-2 text-base">
-                    In stock:{" "}
-                    <span
-                      className={`text-2xl font-extrabold ${
-                        isLow ? "text-red-600" : "text-gray-900"
-                      }`}
-                    >
-                      {inStock}
-                    </span>
-                  </p>
-                  <p className="mt-1 text-sm text-gray-500">
-                    On Order:{" "}
-                    <span className="font-semibold text-gray-700">
-                      {onOrder}
-                    </span>
-                  </p>
-                  {item.tracked && (
-                    <p className="mt-1 text-sm text-gray-500">
-                      Tracked ·{" "}
-                      <span className="font-semibold text-gray-700">
-                        {Number(item.usingQty) || 0}
-                      </span>{" "}
-                      out
+
+                  <div className="mt-3 flex items-end justify-between">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                        In Stock
+                      </p>
+                      <p
+                        className={`text-3xl font-extrabold tabular-nums ${
+                          isLow ? 'text-red-500' : 'text-slate-800'
+                        }`}
+                      >
+                        {inStock}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                        On Order
+                      </p>
+                      <p className="text-xl font-bold tabular-nums text-amber-600">
+                        {onOrder}
+                      </p>
+                    </div>
+                    {item.tracked && (
+                      <div className="text-right">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                          Out
+                        </p>
+                        <p className="text-xl font-bold tabular-nums text-slate-600">
+                          {Number(item.usingQty) || 0}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {lowThreshold > 0 && (
+                    <p className="mt-2 text-xs text-slate-400">
+                      Threshold: <span className="font-semibold">{lowThreshold}</span>
                     </p>
                   )}
+
                   {item.syncToPams === true && item.tracked !== true && (
-                    <p className="mt-1 text-xs font-semibold text-blue-600">
-                      Reorder via PAMS
+                    <p className="mt-2 inline-block rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-600">
+                      PAMS Reorder
                     </p>
                   )}
-                  {isLow && (
-                    <p className="mt-1 text-sm font-semibold text-red-600">
-                      Low stock — reorder
-                    </p>
-                  )}
+
                   <div className="mt-3 flex gap-2">
                     <button
                       onClick={() => setUnitsItem(item)}
-                      className="flex-1 rounded-lg border border-gray-300 bg-white py-2 text-sm font-semibold text-gray-700 active:bg-gray-100"
+                      className="flex-1 rounded-lg bg-slate-100 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-200 active:scale-95"
                     >
-                      Add units
+                      + Units
                     </button>
                     <button
                       onClick={() => printItemTags(item)}
                       disabled={printing}
-                      title={
-                        item.tracked
-                          ? "Reprint all unique unit tags for this item"
-                          : "One label for this item — scan it to update the total count. Same QR every time by design."
-                      }
-                      className="flex-1 rounded-lg border border-gray-300 bg-white py-2 text-sm font-semibold text-gray-700 active:bg-gray-100 disabled:opacity-50"
+                      className="flex-1 rounded-lg bg-slate-100 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-200 active:scale-95 disabled:opacity-50"
                     >
-                      {item.tracked ? "Print unit tags" : "Print item tag"}
+                      {item.tracked ? 'Unit Tags' : 'Item Tag'}
                     </button>
                   </div>
                   <button
                     onClick={() => setManageItem(item)}
-                    className="mt-2 w-full rounded-lg py-2 text-xs font-semibold text-gray-500 active:bg-gray-100"
+                    className="mt-2 w-full rounded-lg py-1.5 text-xs font-medium text-slate-400 transition hover:bg-slate-50 hover:text-slate-600 active:scale-95"
                   >
-                    Manage (threshold / remove / delete)
+                    Manage →
                   </button>
                 </div>
               </div>

@@ -46,20 +46,23 @@ export default function Login() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-100 via-white to-amber-50/30 px-4">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-md"
+        className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-xl ring-1 ring-slate-200/60"
       >
-        <h1 className="text-center text-2xl font-bold text-gray-900">
-          Inventory
-        </h1>
-        <p className="mt-1 text-center text-sm text-gray-500">
-          Sign in to continue
-        </p>
+        <div className="text-center">
+          <span className="text-4xl">📦</span>
+          <h1 className="mt-2 text-2xl font-bold text-slate-800">
+            Inventory
+          </h1>
+          <p className="mt-1 text-sm text-slate-500">
+            Sign in to continue
+          </p>
+        </div>
 
         <label className="mt-6 block">
-          <span className="text-sm font-medium text-gray-700">Email</span>
+          <span className="text-sm font-semibold text-slate-700">Email</span>
           <input
             type="email"
             autoComplete="username"
@@ -67,12 +70,12 @@ export default function Login() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={submitting}
-            className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-3 text-base focus:border-blue-500 focus:outline-none disabled:opacity-50"
+            className="mt-1.5 w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3 text-base transition focus:border-indigo-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100 disabled:opacity-50"
           />
         </label>
 
         <label className="mt-4 block">
-          <span className="text-sm font-medium text-gray-700">Password</span>
+          <span className="text-sm font-semibold text-slate-700">Password</span>
           <input
             type="password"
             autoComplete="current-password"
@@ -80,12 +83,12 @@ export default function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={submitting}
-            className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-3 text-base focus:border-blue-500 focus:outline-none disabled:opacity-50"
+            className="mt-1.5 w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3 text-base transition focus:border-indigo-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100 disabled:opacity-50"
           />
         </label>
 
         {error && (
-          <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+          <p className="mt-4 rounded-xl bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 ring-1 ring-red-100">
             {error}
           </p>
         )}
@@ -93,9 +96,9 @@ export default function Login() {
         <button
           type="submit"
           disabled={submitting}
-          className="mt-6 w-full rounded-lg bg-blue-600 py-3 text-base font-semibold text-white shadow active:bg-blue-700 disabled:opacity-50"
+          className="mt-6 w-full rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 py-3.5 text-base font-bold text-white shadow-lg shadow-indigo-500/20 transition hover:from-indigo-400 hover:to-indigo-500 hover:shadow-xl active:scale-[0.98] disabled:opacity-50"
         >
-          {submitting ? "Signing in…" : "Sign In"}
+          {submitting ? 'Signing in…' : 'Sign In'}
         </button>
       </form>
     </main>
