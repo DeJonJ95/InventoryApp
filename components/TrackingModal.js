@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import {
@@ -85,10 +85,10 @@ export default function TrackingModal({ onClose }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
       <div className="flex max-h-[88vh] w-full max-w-lg flex-col rounded-2xl bg-white p-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-gray-900">Tracking</h2>
+          <h2 className="text-xl font-bold text-brand-darkest">Tracking</h2>
           <button
             onClick={onClose}
-            className="rounded-md bg-gray-100 px-3 py-1.5 text-sm font-semibold text-gray-700 active:bg-gray-200"
+            className="rounded-md bg-brand-surface px-3 py-1.5 text-sm font-semibold text-brand-darkest/80 active:bg-brand-surface"
           >
             Close
           </button>
@@ -99,8 +99,8 @@ export default function TrackingModal({ onClose }) {
             onClick={() => setTab("out")}
             className={`flex-1 rounded-lg px-3 py-2 text-sm font-semibold ${
               tab === "out"
-                ? "bg-blue-600 text-white"
-                : "bg-gray-100 text-gray-700"
+                ? "bg-brand-teal text-white"
+                : "bg-brand-surface text-brand-darkest/80"
             }`}
           >
             Out by location ({totalOut})
@@ -109,8 +109,8 @@ export default function TrackingModal({ onClose }) {
             onClick={() => setTab("history")}
             className={`flex-1 rounded-lg px-3 py-2 text-sm font-semibold ${
               tab === "history"
-                ? "bg-blue-600 text-white"
-                : "bg-gray-100 text-gray-700"
+                ? "bg-brand-teal text-white"
+                : "bg-brand-surface text-brand-darkest/80"
             }`}
           >
             Unit history
@@ -121,7 +121,7 @@ export default function TrackingModal({ onClose }) {
           {tab === "out" && (
             <>
               {groups.length === 0 && (
-                <p className="py-10 text-center text-sm text-gray-400">
+                <p className="py-10 text-center text-sm text-brand-darkest/40">
                   Nothing is checked out right now.
                 </p>
               )}
@@ -136,10 +136,10 @@ export default function TrackingModal({ onClose }) {
                       }
                       className="flex flex-1 items-center justify-between text-left"
                     >
-                      <span className="font-semibold text-gray-900">
+                      <span className="font-semibold text-brand-darkest">
                         {g.location}
                       </span>
-                      <span className="text-sm text-gray-500">
+                      <span className="text-sm text-brand-darkest/50">
                         {g.units.length} unit
                         {g.units.length === 1 ? "" : "s"} ▾
                       </span>
@@ -152,7 +152,7 @@ export default function TrackingModal({ onClose }) {
                         )
                       }
                       disabled={checkInBusy}
-                      className="shrink-0 rounded-lg bg-green-600 px-3 py-1.5 text-sm font-semibold text-white active:bg-green-700 disabled:opacity-50"
+                      className="shrink-0 rounded-lg bg-brand-teal px-3 py-1.5 text-sm font-semibold text-white active:bg-brand-teal2 disabled:opacity-50"
                     >
                       {checkInBusy ? "…" : "Check in all"}
                     </button>
@@ -167,19 +167,19 @@ export default function TrackingModal({ onClose }) {
                           <button
                             onClick={() => viewUnit(u)}
                             title="View this unit's history"
-                            className="flex flex-1 items-center justify-between gap-3 rounded-md px-2 py-1.5 text-left text-sm active:bg-gray-100 hover:bg-gray-50"
+                            className="flex flex-1 items-center justify-between gap-3 rounded-md px-2 py-1.5 text-left text-sm active:bg-brand-surface hover:bg-brand-light"
                           >
-                            <span className="truncate text-blue-600 underline">
+                            <span className="truncate text-brand-teal underline">
                               {u.itemName}
                             </span>
-                            <span className="shrink-0 text-gray-400">
+                            <span className="shrink-0 text-brand-darkest/40">
                               {u.id} ›
                             </span>
                           </button>
                           <button
                             onClick={() => checkIn([u.id])}
                             disabled={checkInBusy}
-                            className="shrink-0 rounded-md border border-green-600 px-2.5 py-1 text-xs font-semibold text-green-700 active:bg-green-50 disabled:opacity-50"
+                            className="shrink-0 rounded-md border border-brand-teal px-2.5 py-1 text-xs font-semibold text-brand-teal active:bg-brand-teal/10 disabled:opacity-50"
                           >
                             Check in
                           </button>
@@ -199,25 +199,25 @@ export default function TrackingModal({ onClose }) {
                   value={assetId}
                   onChange={(e) => setAssetId(e.target.value)}
                   placeholder="Unit tag ID (e.g. 100089-0007)"
-                  className="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-base focus:border-blue-500 focus:outline-none"
+                  className="flex-1 rounded-lg border border-brand-surface px-3 py-2.5 text-base focus:border-brand-teal focus:outline-none"
                 />
                 <button
                   type="submit"
                   disabled={historyBusy}
-                  className="rounded-lg bg-blue-600 px-4 py-2.5 text-base font-semibold text-white active:bg-blue-700 disabled:opacity-50"
+                  className="rounded-lg bg-brand-teal px-4 py-2.5 text-base font-semibold text-white active:bg-brand-teal2 disabled:opacity-50"
                 >
                   {historyBusy ? "…" : "Look up"}
                 </button>
               </form>
 
               {historyError && (
-                <p className="mt-3 text-sm font-medium text-red-700">
+                <p className="mt-3 text-sm font-medium text-brand-darkest">
                   {historyError}
                 </p>
               )}
 
               {history && history.length === 0 && (
-                <p className="py-8 text-center text-sm text-gray-400">
+                <p className="py-8 text-center text-sm text-brand-darkest/40">
                   No history for that unit (check the ID).
                 </p>
               )}
@@ -228,18 +228,18 @@ export default function TrackingModal({ onClose }) {
                     <li key={i} className="flex gap-3">
                       <span
                         className={`mt-0.5 inline-block h-2.5 w-2.5 shrink-0 rounded-full ${
-                          ev.type === "out" ? "bg-amber-500" : "bg-green-600"
+                          ev.type === "out" ? "bg-brand-gold" : "bg-brand-teal"
                         }`}
                       />
                       <div className="text-sm">
-                        <p className="font-semibold text-gray-900">
+                        <p className="font-semibold text-brand-darkest">
                           {ev.type === "out"
                             ? `Checked out → ${ev.location || "?"}`
                             : `Checked in${
                                 ev.location ? ` (from ${ev.location})` : ""
                               }`}
                         </p>
-                        <p className="text-gray-500">
+                        <p className="text-brand-darkest/50">
                           {fmt(ev.at)}
                           {ev.byEmail ? ` · ${ev.byEmail}` : ""}
                         </p>

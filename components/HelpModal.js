@@ -1,10 +1,10 @@
-"use client";
+﻿"use client";
 
 function Section({ title, children }) {
   return (
     <div className="border-t py-4 first:border-t-0 first:pt-0">
-      <h3 className="text-base font-bold text-gray-900">{title}</h3>
-      <div className="mt-1 space-y-1 text-sm text-gray-600">{children}</div>
+      <h3 className="text-base font-bold text-brand-darkest">{title}</h3>
+      <div className="mt-1 space-y-1 text-sm text-brand-darkest/70">{children}</div>
     </div>
   );
 }
@@ -14,10 +14,10 @@ export default function HelpModal({ onClose }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
       <div className="flex max-h-[90vh] w-full max-w-2xl flex-col rounded-2xl bg-white p-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-gray-900">Help &amp; Guide</h2>
+          <h2 className="text-xl font-bold text-brand-darkest">Help &amp; Guide</h2>
           <button
             onClick={onClose}
-            className="rounded-md bg-gray-100 px-3 py-1.5 text-sm font-semibold text-gray-700 active:bg-gray-200"
+            className="rounded-md bg-brand-surface px-3 py-1.5 text-sm font-semibold text-brand-darkest/80 active:bg-brand-surface"
           >
             Close
           </button>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Html5Qrcode } from "html5-qrcode";
@@ -221,10 +221,10 @@ export default function Scanner({ onClose }) {
 
         {cameraError && (
           <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 rounded-lg bg-white p-5 text-center">
-            <p className="text-red-600">{cameraError}</p>
+            <p className="text-brand-darkest">{cameraError}</p>
             <button
               onClick={onClose}
-              className="mt-4 rounded-md bg-gray-800 px-5 py-2 text-white"
+              className="mt-4 rounded-md bg-brand-darkest px-5 py-2 text-white"
             >
               Go Back
             </button>
@@ -241,15 +241,15 @@ export default function Scanner({ onClose }) {
       {/* "Not found" sub-modal */}
       {notFoundId && (
         <SubModal>
-          <p className="text-center text-lg font-semibold text-gray-900">
+          <p className="text-center text-lg font-semibold text-brand-darkest">
             No item found
           </p>
-          <p className="mt-1 text-center text-sm text-gray-500 break-all">
+          <p className="mt-1 text-center text-sm text-brand-darkest/50 break-all">
             Code: {notFoundId}
           </p>
           <button
             onClick={resumeScanning}
-            className="mt-5 w-full rounded-lg bg-gray-800 py-3 text-base font-semibold text-white active:bg-gray-700"
+            className="mt-5 w-full rounded-lg bg-brand-darkest py-3 text-base font-semibold text-white active:bg-brand-dark"
           >
             Scan Again
           </button>
@@ -259,33 +259,33 @@ export default function Scanner({ onClose }) {
       {/* Loading sub-modal */}
       {loadingItem && !activeItem && !activeAsset && (
         <SubModal>
-          <p className="text-center text-gray-700">Looking up code…</p>
+          <p className="text-center text-brand-darkest/80">Looking up code…</p>
         </SubModal>
       )}
 
       {/* Asset check-in/out sub-modal */}
       {activeAsset && (
         <SubModal>
-          <p className="text-center text-xs font-semibold uppercase tracking-wide text-blue-600">
+          <p className="text-center text-xs font-semibold uppercase tracking-wide text-brand-teal">
             Tracked unit
           </p>
-          <h3 className="text-center text-xl font-bold text-gray-900">
+          <h3 className="text-center text-xl font-bold text-brand-darkest">
             {activeAsset.itemName || activeAsset.itemId}
           </h3>
-          <p className="mt-0.5 text-center text-sm text-gray-500">
+          <p className="mt-0.5 text-center text-sm text-brand-darkest/50">
             {activeAsset.id}
           </p>
 
           {activeAsset.status === "checked_out" ? (
             <>
               <div className="mt-4 rounded-xl border-2 border-amber-200 bg-amber-50 p-4 text-center">
-                <p className="text-sm text-gray-600">Currently checked out to</p>
-                <p className="text-lg font-bold text-gray-900">
+                <p className="text-sm text-brand-darkest/70">Currently checked out to</p>
+                <p className="text-lg font-bold text-brand-darkest">
                   {activeAsset.location || "unknown"}
                 </p>
               </div>
               {assetError && (
-                <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+                <p className="mt-3 rounded-lg bg-brand-gold/10 px-3 py-2 text-sm font-medium text-brand-darkest">
                   {assetError}
                 </p>
               )}
@@ -293,14 +293,14 @@ export default function Scanner({ onClose }) {
                 <button
                   onClick={resumeScanning}
                   disabled={assetBusy}
-                  className="flex-1 rounded-lg bg-gray-200 py-3 text-base font-semibold text-gray-800 active:bg-gray-300 disabled:opacity-50"
+                  className="flex-1 rounded-lg bg-brand-surface py-3 text-base font-semibold text-brand-darkest active:bg-brand-surface/80 disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={doCheckIn}
                   disabled={assetBusy}
-                  className="flex-1 rounded-lg bg-green-600 py-3 text-base font-semibold text-white active:bg-green-700 disabled:opacity-50"
+                  className="flex-1 rounded-lg bg-brand-teal py-3 text-base font-semibold text-white active:bg-brand-teal2 disabled:opacity-50"
                 >
                   {assetBusy ? "Working…" : "Check In"}
                 </button>
@@ -308,15 +308,15 @@ export default function Scanner({ onClose }) {
             </>
           ) : (
             <>
-              <div className="mt-4 rounded-xl border-2 border-blue-200 bg-blue-50 p-4">
-                <p className="text-sm font-semibold text-gray-800">
+              <div className="mt-4 rounded-xl border-2 border-brand-teal/30 bg-brand-teal/10 p-4">
+                <p className="text-sm font-semibold text-brand-darkest">
                   Check out to
                 </p>
                 <select
                   value={selectedLocation}
                   disabled={assetBusy}
                   onChange={(e) => setSelectedLocation(e.target.value)}
-                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-3 py-3 text-base disabled:opacity-50"
+                  className="mt-2 w-full rounded-lg border border-brand-surface bg-white px-3 py-3 text-base disabled:opacity-50"
                 >
                   <option value="">Select a location…</option>
                   {locations.map((l) => (
@@ -331,14 +331,14 @@ export default function Scanner({ onClose }) {
                   </p>
                 )}
                 {selectedLocation && (
-                  <p className="mt-2 text-xs text-gray-500">
+                  <p className="mt-2 text-xs text-brand-darkest/50">
                     Stays selected for the next scans — scan a batch to the same
                     site without re-picking.
                   </p>
                 )}
               </div>
               {assetError && (
-                <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+                <p className="mt-3 rounded-lg bg-brand-gold/10 px-3 py-2 text-sm font-medium text-brand-darkest">
                   {assetError}
                 </p>
               )}
@@ -346,14 +346,14 @@ export default function Scanner({ onClose }) {
                 <button
                   onClick={resumeScanning}
                   disabled={assetBusy}
-                  className="flex-1 rounded-lg bg-gray-200 py-3 text-base font-semibold text-gray-800 active:bg-gray-300 disabled:opacity-50"
+                  className="flex-1 rounded-lg bg-brand-surface py-3 text-base font-semibold text-brand-darkest active:bg-brand-surface/80 disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={doCheckOut}
                   disabled={assetBusy || !selectedLocation}
-                  className="flex-1 rounded-lg bg-blue-600 py-3 text-base font-semibold text-white active:bg-blue-700 disabled:opacity-50"
+                  className="flex-1 rounded-lg bg-brand-teal py-3 text-base font-semibold text-white active:bg-brand-teal2 disabled:opacity-50"
                 >
                   {assetBusy ? "Working…" : "Check Out"}
                 </button>
@@ -375,30 +375,30 @@ export default function Scanner({ onClose }) {
             }}
             className="mx-auto h-32 w-32 rounded-lg object-cover"
           />
-          <p className="mt-3 text-center text-xs font-semibold uppercase tracking-wide text-blue-600">
+          <p className="mt-3 text-center text-xs font-semibold uppercase tracking-wide text-brand-teal">
             Updating
           </p>
-          <h3 className="text-center text-xl font-bold text-gray-900">
+          <h3 className="text-center text-xl font-bold text-brand-darkest">
             {activeItem.itemName || activeItem.id}
           </h3>
-          <p className="mt-0.5 text-center text-sm text-gray-500">
+          <p className="mt-0.5 text-center text-sm text-brand-darkest/50">
             ID {activeItem.id} · was {Number(activeItem.inStock) || 0} in stock ·
             threshold {Number(activeItem.lowThreshold) || 0}
           </p>
 
           {/* In Stock — primary count, typeable */}
-          <div className="mt-5 rounded-xl border-2 border-blue-200 bg-blue-50 p-4">
-            <p className="text-sm font-semibold text-gray-800">
+          <div className="mt-5 rounded-xl border-2 border-brand-teal/30 bg-brand-teal/10 p-4">
+            <p className="text-sm font-semibold text-brand-darkest">
               In Stock — total now in this bin
             </p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-brand-darkest/50">
               Count everything in the container/bundle and type the total.
             </p>
             <div className="mt-3 flex items-center justify-center gap-4">
               <button
                 onClick={() => setDraftStock((n) => Math.max(0, n - 1))}
                 disabled={saving}
-                className="h-14 w-14 shrink-0 rounded-full bg-white text-3xl font-bold text-gray-800 shadow active:bg-gray-100 disabled:opacity-50"
+                className="h-14 w-14 shrink-0 rounded-full bg-white text-3xl font-bold text-brand-darkest shadow active:bg-brand-surface disabled:opacity-50"
                 aria-label="Decrease by one"
               >
                 −
@@ -413,12 +413,12 @@ export default function Scanner({ onClose }) {
                   setDraftStock(Math.max(0, Math.floor(+e.target.value || 0)))
                 }
                 {...selectAllProps}
-                className="w-28 rounded-lg border border-gray-300 bg-white py-2 text-center text-4xl font-bold tabular-nums text-gray-900 disabled:opacity-50"
+                className="w-28 rounded-lg border border-brand-surface bg-white py-2 text-center text-4xl font-bold tabular-nums text-brand-darkest disabled:opacity-50"
               />
               <button
                 onClick={() => setDraftStock((n) => n + 1)}
                 disabled={saving}
-                className="h-14 w-14 shrink-0 rounded-full bg-white text-3xl font-bold text-gray-800 shadow active:bg-gray-100 disabled:opacity-50"
+                className="h-14 w-14 shrink-0 rounded-full bg-white text-3xl font-bold text-brand-darkest shadow active:bg-brand-surface disabled:opacity-50"
                 aria-label="Increase by one"
               >
                 +
@@ -428,10 +428,10 @@ export default function Scanner({ onClose }) {
 
           <div className="mt-4 grid grid-cols-2 gap-3">
             <label className="block">
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-sm font-medium text-brand-darkest/80">
                 On Order
               </span>
-              <span className="block text-xs text-gray-400">
+              <span className="block text-xs text-brand-darkest/40">
                 Ordered, not yet in
               </span>
               <input
@@ -444,12 +444,12 @@ export default function Scanner({ onClose }) {
                   setDraftOnOrder(Math.max(0, Math.floor(+e.target.value || 0)))
                 }
                 {...selectAllProps}
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-3 text-lg tabular-nums disabled:opacity-50"
+                className="mt-1 w-full rounded-lg border border-brand-surface px-3 py-3 text-lg tabular-nums disabled:opacity-50"
               />
             </label>
             <label className="block">
-              <span className="text-sm font-medium text-gray-700">In Use</span>
-              <span className="block text-xs text-gray-400">
+              <span className="text-sm font-medium text-brand-darkest/80">In Use</span>
+              <span className="block text-xs text-brand-darkest/40">
                 Checked out / in use
               </span>
               <input
@@ -462,7 +462,7 @@ export default function Scanner({ onClose }) {
                   setDraftUsingQty(Math.max(0, Math.floor(+e.target.value || 0)))
                 }
                 {...selectAllProps}
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-3 text-lg tabular-nums disabled:opacity-50"
+                className="mt-1 w-full rounded-lg border border-brand-surface px-3 py-3 text-lg tabular-nums disabled:opacity-50"
               />
             </label>
           </div>
@@ -471,14 +471,14 @@ export default function Scanner({ onClose }) {
             <button
               onClick={resumeScanning}
               disabled={saving}
-              className="flex-1 rounded-lg bg-gray-200 py-3 text-base font-semibold text-gray-800 active:bg-gray-300 disabled:opacity-50"
+              className="flex-1 rounded-lg bg-brand-surface py-3 text-base font-semibold text-brand-darkest active:bg-brand-surface/80 disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               onClick={saveUpdate}
               disabled={saving}
-              className="flex-1 rounded-lg bg-blue-600 py-3 text-base font-semibold text-white active:bg-blue-700 disabled:opacity-50"
+              className="flex-1 rounded-lg bg-brand-teal py-3 text-base font-semibold text-white active:bg-brand-teal2 disabled:opacity-50"
             >
               {saving ? "Saving…" : "Save Update"}
             </button>
