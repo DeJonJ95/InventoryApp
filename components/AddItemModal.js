@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
+import { PAMS_STORAGES, DEFAULT_STORAGE } from "../lib/items";
 import { selectAllProps } from "../lib/ui";
 
 /**
@@ -16,7 +17,7 @@ export default function AddItemModal({ onClose }) {
   const [itemName, setItemName] = useState("");
   const [lowThreshold, setLowThreshold] = useState(0);
   const [unit, setUnit] = useState("EACH");
-  const [storage, setStorage] = useState("");
+  const [storage, setStorage] = useState(DEFAULT_STORAGE);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -46,7 +47,7 @@ export default function AddItemModal({ onClose }) {
         onOrder: 0,
         usingQty: 0,
         unit: unit.trim() || "EACH",
-        storage: storage.trim(),
+        storage,
         section: "",
         shelf: "",
         description: "",
@@ -130,16 +131,19 @@ export default function AddItemModal({ onClose }) {
         </div>
 
         <label className="mt-4 block">
-          <span className="text-sm font-medium text-gray-700">
-            Storage / Bin <span className="text-gray-400">(optional)</span>
-          </span>
-          <input
+          <span className="text-sm font-medium text-gray-700">Storage</span>
+          <select
             value={storage}
             onChange={(e) => setStorage(e.target.value)}
             disabled={saving}
-            placeholder="e.g. T11"
-            className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-3 text-base focus:border-blue-500 focus:outline-none disabled:opacity-50"
-          />
+            className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-3 text-base focus:border-blue-500 focus:outline-none disabled:opacity-50"
+          >
+            {PAMS_STORAGES.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
         </label>
 
         {error && (
