@@ -9,6 +9,7 @@ import { useLatestPamsExport } from "../lib/pamsExport";
 import { generateInventoryTagsPdf } from "../lib/printTags";
 import Scanner from "../components/Scanner";
 import Login from "../components/Login";
+import AddItemModal from "../components/AddItemModal";
 
 export default function DashboardPage() {
   // undefined = auth state still resolving; null = signed out; object = signed in
@@ -37,6 +38,7 @@ function InventoryDashboard({ user }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [scannerOpen, setScannerOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
   const [printing, setPrinting] = useState(false);
   const pams = useLatestPamsExport();
 
@@ -91,6 +93,12 @@ function InventoryDashboard({ user }) {
             className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-base font-semibold text-gray-800 shadow-sm active:bg-gray-100 disabled:opacity-50"
           >
             {pams.loading ? "…" : "Download CSV"}
+          </button>
+          <button
+            onClick={() => setAddOpen(true)}
+            className="rounded-lg bg-green-600 px-5 py-2.5 text-base font-semibold text-white shadow active:bg-green-700"
+          >
+            Add New Item
           </button>
           <button
             onClick={handlePrintTags}
@@ -188,6 +196,7 @@ function InventoryDashboard({ user }) {
         </div>
       </div>
 
+      {addOpen && <AddItemModal onClose={() => setAddOpen(false)} />}
       {scannerOpen && <Scanner onClose={() => setScannerOpen(false)} />}
     </main>
   );
