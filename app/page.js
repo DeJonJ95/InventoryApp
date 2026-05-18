@@ -174,7 +174,7 @@ function InventoryDashboard({ user }) {
                   pams.error ||
                   (pams.latest
                     ? `Latest: ${pams.latest.name}`
-                    : "PAMS export file (.xlsx)")
+                    : "PAMS export file (.xls)")
                 }
                 className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-base font-semibold text-gray-800 shadow-sm active:bg-gray-100 disabled:opacity-50"
               >
