@@ -404,7 +404,7 @@ function InventoryDashboard({ user }) {
                       out
                     </p>
                   )}
-                  {item.syncToPams === true && (
+                  {item.syncToPams === true && item.tracked !== true && (
                     <p className="mt-1 text-xs font-semibold text-blue-600">
                       Reorder via PAMS
                     </p>

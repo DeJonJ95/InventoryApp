@@ -89,10 +89,11 @@ exports.pamsDailySync = onSchedule(
     let skipped = 0;
     snap.forEach((doc) => {
       const d = doc.data() || {};
-      // Only consumables the manager flagged "Reorder via PAMS" sync.
-      // Everything else (equipment/in-out items, the bulk-seeded catalog)
-      // is excluded — PAMS only needs reorderable consumables.
-      if (d.syncToPams !== true) {
+      // Only consumables flagged "Reorder via PAMS" sync. Tracked
+      // (individually-tracked equipment) is excluded even if flagged —
+      // PAMS Equipment-Tracking items reject the consumables import
+      // ("cannot update to No Tracking category").
+      if (d.syncToPams !== true || d.tracked === true) {
         skipped += 1;
         return;
       }
