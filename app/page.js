@@ -364,7 +364,7 @@ function InventoryDashboard({ user }) {
                 }`}
               >
                 <img
-                  src={imgUrl(item.id)}
+                  src={imgUrl(item.id, item.photoVersion)}
                   alt={item.itemName || item.id}
                   onError={(e) => {
                     e.currentTarget.onerror = null;

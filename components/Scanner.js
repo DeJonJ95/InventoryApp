@@ -367,7 +367,7 @@ export default function Scanner({ onClose }) {
       {activeItem && (
         <SubModal>
           <img
-            src={imgUrl(activeItem.id)}
+            src={imgUrl(activeItem.id, activeItem.photoVersion)}
             alt={activeItem.itemName || activeItem.id}
             onError={(e) => {
               e.currentTarget.onerror = null;

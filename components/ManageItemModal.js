@@ -4,6 +4,8 @@ import { useState } from "react";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { removeUnusedUnits, deleteItemCompletely } from "../lib/assets";
+import { uploadItemPhoto } from "../lib/photo";
+import { imgUrl, FALLBACK_IMG } from "../lib/items";
 import { selectAllProps } from "../lib/ui";
 
 /**
@@ -21,9 +23,27 @@ export default function ManageItemModal({ item, onClose }) {
   const [removeN, setRemoveN] = useState(1);
   const [threshold, setThreshold] = useState(Number(item.lowThreshold) || 0);
   const [thresholdMsg, setThresholdMsg] = useState("");
+  const [photoMsg, setPhotoMsg] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
   const [error, setError] = useState("");
+
+  async function handlePhoto(e) {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // allow re-selecting the same file later
+    if (!file) return;
+    setError("");
+    setPhotoMsg("");
+    setBusy(true);
+    try {
+      await uploadItemPhoto(item.id, file);
+      setPhotoMsg("Photo saved.");
+    } catch (err) {
+      setError(err.message || "Could not upload photo.");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   async function handleSaveThreshold() {
     setError("");
@@ -91,6 +111,46 @@ export default function ManageItemModal({ item, onClose }) {
           <span className="font-semibold">{name}</span> · {inStock} in stock
           {item.tracked ? ` · ${out} out` : ""}
         </p>
+
+        <div className="mt-5 rounded-xl border border-gray-200 p-4">
+          <p className="text-sm font-semibold text-gray-800">Photo</p>
+          <p className="text-xs text-gray-500">
+            Take or choose a picture of this item.
+          </p>
+          <div className="mt-3 flex items-center gap-3">
+            <img
+              src={imgUrl(item.id, item.photoVersion)}
+              alt={name}
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = FALLBACK_IMG;
+              }}
+              className="h-16 w-16 rounded-lg object-cover"
+            />
+            <label className="flex-1">
+              <span
+                className={`block cursor-pointer rounded-lg py-2.5 text-center text-base font-semibold text-white ${
+                  busy ? "bg-blue-300" : "bg-blue-600 active:bg-blue-700"
+                }`}
+              >
+                {busy ? "Working…" : "Take / choose photo"}
+              </span>
+              <input
+                type="file"
+                accept="image/*"
+                capture="environment"
+                disabled={busy}
+                onChange={handlePhoto}
+                className="hidden"
+              />
+            </label>
+          </div>
+          {photoMsg && (
+            <p className="mt-2 text-sm font-medium text-green-700">
+              {photoMsg}
+            </p>
+          )}
+        </div>
 
         <div className="mt-5 rounded-xl border border-gray-200 p-4">
           <p className="text-sm font-semibold text-gray-800">
