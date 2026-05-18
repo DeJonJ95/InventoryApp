@@ -29,9 +29,7 @@ export default function TrackingModal({ onClose }) {
 
   useEffect(() => watchCheckedOut(setGroups), []);
 
-  async function lookupHistory(e) {
-    e.preventDefault();
-    const id = assetId.trim();
+  async function loadHistory(id) {
     if (!id) return;
     setHistoryError("");
     setHistoryBusy(true);
@@ -45,6 +43,18 @@ export default function TrackingModal({ onClose }) {
     } finally {
       setHistoryBusy(false);
     }
+  }
+
+  function lookupHistory(e) {
+    e.preventDefault();
+    loadHistory(assetId.trim());
+  }
+
+  // Click a unit in the location list → jump to its history.
+  function viewUnit(u) {
+    setAssetId(u.id);
+    setTab("history");
+    loadHistory(u.id);
   }
 
   const totalOut = groups.reduce((n, g) => n + g.units.length, 0);
@@ -111,12 +121,19 @@ export default function TrackingModal({ onClose }) {
                   {expanded === g.location && (
                     <ul className="pb-3">
                       {g.units.map((u) => (
-                        <li
-                          key={u.id}
-                          className="flex justify-between py-1 text-sm"
-                        >
-                          <span className="text-gray-700">{u.itemName}</span>
-                          <span className="text-gray-400">{u.id}</span>
+                        <li key={u.id}>
+                          <button
+                            onClick={() => viewUnit(u)}
+                            title="View this unit's history"
+                            className="flex w-full items-center justify-between gap-3 rounded-md px-2 py-1.5 text-left text-sm active:bg-gray-100 hover:bg-gray-50"
+                          >
+                            <span className="truncate text-blue-600 underline">
+                              {u.itemName}
+                            </span>
+                            <span className="shrink-0 text-gray-400">
+                              {u.id} ›
+                            </span>
+                          </button>
                         </li>
                       ))}
                     </ul>
