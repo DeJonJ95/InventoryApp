@@ -10,6 +10,7 @@ import { generateInventoryTagsPdf } from "../lib/printTags";
 import Scanner from "../components/Scanner";
 import Login from "../components/Login";
 import AddItemModal from "../components/AddItemModal";
+import AddUnitsModal from "../components/AddUnitsModal";
 
 export default function DashboardPage() {
   // undefined = auth state still resolving; null = signed out; object = signed in
@@ -39,6 +40,7 @@ function InventoryDashboard({ user }) {
   const [error, setError] = useState("");
   const [scannerOpen, setScannerOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
+  const [unitsItem, setUnitsItem] = useState(null);
   const [printing, setPrinting] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -333,18 +335,35 @@ function InventoryDashboard({ user }) {
                       {onOrder}
                     </span>
                   </p>
+                  {item.tracked && (
+                    <p className="mt-1 text-sm text-gray-500">
+                      Tracked ·{" "}
+                      <span className="font-semibold text-gray-700">
+                        {Number(item.usingQty) || 0}
+                      </span>{" "}
+                      out
+                    </p>
+                  )}
                   {isLow && (
                     <p className="mt-1 text-sm font-semibold text-red-600">
                       Low stock — reorder
                     </p>
                   )}
-                  <button
-                    onClick={() => handlePrintTags([item])}
-                    disabled={printing}
-                    className="mt-3 w-full rounded-lg border border-gray-300 bg-white py-2 text-sm font-semibold text-gray-700 active:bg-gray-100 disabled:opacity-50"
-                  >
-                    Print tag
-                  </button>
+                  <div className="mt-3 flex gap-2">
+                    <button
+                      onClick={() => setUnitsItem(item)}
+                      className="flex-1 rounded-lg border border-gray-300 bg-white py-2 text-sm font-semibold text-gray-700 active:bg-gray-100"
+                    >
+                      Add units
+                    </button>
+                    <button
+                      onClick={() => handlePrintTags([item])}
+                      disabled={printing}
+                      className="flex-1 rounded-lg border border-gray-300 bg-white py-2 text-sm font-semibold text-gray-700 active:bg-gray-100 disabled:opacity-50"
+                    >
+                      Print tag
+                    </button>
+                  </div>
                 </div>
               </div>
             );
@@ -353,6 +372,9 @@ function InventoryDashboard({ user }) {
       </div>
 
       {addOpen && <AddItemModal onClose={() => setAddOpen(false)} />}
+      {unitsItem && (
+        <AddUnitsModal item={unitsItem} onClose={() => setUnitsItem(null)} />
+      )}
       {scannerOpen && <Scanner onClose={() => setScannerOpen(false)} />}
     </main>
   );
