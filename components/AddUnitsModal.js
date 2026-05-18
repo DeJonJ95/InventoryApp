@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { createTrackedUnits } from "../lib/assets";
 import { generateInventoryTagsPdf } from "../lib/printTags";
-import { selectAllOnFocus } from "../lib/ui";
+import { selectAllProps } from "../lib/ui";
 
 /**
  * Create N individually-tracked units for an item, then immediately
@@ -63,7 +63,7 @@ export default function AddUnitsModal({ item, onClose }) {
             onChange={(e) =>
               setCount(Math.max(1, Math.floor(+e.target.value || 1)))
             }
-            onFocus={selectAllOnFocus}
+            {...selectAllProps}
             className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-3 text-2xl font-bold tabular-nums focus:border-blue-500 focus:outline-none disabled:opacity-50"
           />
           <span className="mt-1 block text-xs text-gray-400">

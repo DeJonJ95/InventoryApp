@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
-import { selectAllOnFocus } from "../lib/ui";
+import { selectAllProps } from "../lib/ui";
 
 /**
  * Create a new item profile. Doc ID = Item ID = PAMS BarCode.
@@ -112,7 +112,7 @@ export default function AddItemModal({ onClose }) {
               min={0}
               value={lowThreshold}
               onChange={(e) => setLowThreshold(e.target.value)}
-              onFocus={selectAllOnFocus}
+              {...selectAllProps}
               disabled={saving}
               className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-3 text-base focus:border-blue-500 focus:outline-none disabled:opacity-50"
             />

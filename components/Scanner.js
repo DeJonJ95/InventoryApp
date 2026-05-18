@@ -7,7 +7,7 @@ import { db } from "../lib/firebase";
 import { imgUrl, FALLBACK_IMG } from "../lib/items";
 import { checkOutAsset, checkInAsset } from "../lib/assets";
 import { listActiveLocations } from "../lib/locations";
-import { selectAllOnFocus } from "../lib/ui";
+import { selectAllProps } from "../lib/ui";
 
 const READER_ID = "qr-reader-region";
 
@@ -412,7 +412,7 @@ export default function Scanner({ onClose }) {
                 onChange={(e) =>
                   setDraftStock(Math.max(0, Math.floor(+e.target.value || 0)))
                 }
-                onFocus={selectAllOnFocus}
+                {...selectAllProps}
                 className="w-28 rounded-lg border border-gray-300 bg-white py-2 text-center text-4xl font-bold tabular-nums text-gray-900 disabled:opacity-50"
               />
               <button
@@ -443,7 +443,7 @@ export default function Scanner({ onClose }) {
                 onChange={(e) =>
                   setDraftOnOrder(Math.max(0, Math.floor(+e.target.value || 0)))
                 }
-                onFocus={selectAllOnFocus}
+                {...selectAllProps}
                 className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-3 text-lg tabular-nums disabled:opacity-50"
               />
             </label>
@@ -461,7 +461,7 @@ export default function Scanner({ onClose }) {
                 onChange={(e) =>
                   setDraftUsingQty(Math.max(0, Math.floor(+e.target.value || 0)))
                 }
-                onFocus={selectAllOnFocus}
+                {...selectAllProps}
                 className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-3 text-lg tabular-nums disabled:opacity-50"
               />
             </label>
