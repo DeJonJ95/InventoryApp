@@ -14,6 +14,7 @@ import AddUnitsModal from "../components/AddUnitsModal";
 import { listAssetTags } from "../lib/assets";
 import LocationsModal from "../components/LocationsModal";
 import TrackingModal from "../components/TrackingModal";
+import ManageItemModal from "../components/ManageItemModal";
 
 export default function DashboardPage() {
   // undefined = auth state still resolving; null = signed out; object = signed in
@@ -46,6 +47,7 @@ function InventoryDashboard({ user }) {
   const [unitsItem, setUnitsItem] = useState(null);
   const [locationsOpen, setLocationsOpen] = useState(false);
   const [trackingOpen, setTrackingOpen] = useState(false);
+  const [manageItem, setManageItem] = useState(null);
   const [printing, setPrinting] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -427,6 +429,12 @@ function InventoryDashboard({ user }) {
                       {item.tracked ? "Print unit tags" : "Print bin tag"}
                     </button>
                   </div>
+                  <button
+                    onClick={() => setManageItem(item)}
+                    className="mt-2 w-full rounded-lg py-2 text-xs font-semibold text-gray-500 active:bg-gray-100"
+                  >
+                    Manage / remove
+                  </button>
                 </div>
               </div>
             );
@@ -443,6 +451,12 @@ function InventoryDashboard({ user }) {
       )}
       {trackingOpen && (
         <TrackingModal onClose={() => setTrackingOpen(false)} />
+      )}
+      {manageItem && (
+        <ManageItemModal
+          item={manageItem}
+          onClose={() => setManageItem(null)}
+        />
       )}
       {scannerOpen && <Scanner onClose={() => setScannerOpen(false)} />}
     </main>
