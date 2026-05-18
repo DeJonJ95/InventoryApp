@@ -40,6 +40,7 @@ function InventoryDashboard({ user }) {
   const [scannerOpen, setScannerOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [printing, setPrinting] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [lowOnly, setLowOnly] = useState(false);
   const [uncountedOnly, setUncountedOnly] = useState(false);
@@ -118,52 +119,117 @@ function InventoryDashboard({ user }) {
 
   return (
     <main className="min-h-screen bg-gray-50 pb-24">
-      <header className="sticky top-0 z-20 flex items-center justify-between border-b bg-white px-5 py-4 shadow-sm">
-        <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
-          Inventory
-        </h1>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={pams.download}
-            disabled={pams.loading}
-            title={
-              pams.error ||
-              (pams.latest ? `Latest: ${pams.latest.name}` : "PAMS CSV export")
-            }
-            className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-base font-semibold text-gray-800 shadow-sm active:bg-gray-100 disabled:opacity-50"
-          >
-            {pams.loading ? "…" : "Download CSV"}
-          </button>
-          <button
-            onClick={() => setAddOpen(true)}
-            className="rounded-lg bg-green-600 px-5 py-2.5 text-base font-semibold text-white shadow active:bg-green-700"
-          >
-            Add New Item
-          </button>
-          <button
-            onClick={() => handlePrintTags()}
-            disabled={printing}
-            title="Prints tags for the items currently shown (apply search/filters to narrow)"
-            className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-base font-semibold text-gray-800 shadow-sm active:bg-gray-100 disabled:opacity-50"
-          >
-            {printing
-              ? "Generating…"
-              : `Print Tags (${visibleItems.length})`}
-          </button>
-          <button
-            onClick={() => setScannerOpen(true)}
-            className="rounded-lg bg-blue-600 px-5 py-2.5 text-base font-semibold text-white shadow active:bg-blue-700"
-          >
-            Scan Item
-          </button>
-          <button
-            onClick={() => signOut(auth)}
-            title={user.email || "Sign out"}
-            className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-base font-semibold text-gray-600 shadow-sm active:bg-gray-100"
-          >
-            Sign Out
-          </button>
+      <header className="sticky top-0 z-20 border-b bg-white px-4 py-3 shadow-sm sm:px-5 sm:py-4">
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
+            Inventory
+          </h1>
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Primary action — always visible */}
+            <button
+              onClick={() => setScannerOpen(true)}
+              className="rounded-lg bg-blue-600 px-4 py-2.5 text-base font-semibold text-white shadow active:bg-blue-700 sm:px-5"
+            >
+              Scan Item
+            </button>
+
+            {/* Desktop: full action row */}
+            <div className="hidden items-center gap-3 sm:flex">
+              <button
+                onClick={pams.download}
+                disabled={pams.loading}
+                title={
+                  pams.error ||
+                  (pams.latest
+                    ? `Latest: ${pams.latest.name}`
+                    : "PAMS CSV export")
+                }
+                className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-base font-semibold text-gray-800 shadow-sm active:bg-gray-100 disabled:opacity-50"
+              >
+                {pams.loading ? "…" : "Download CSV"}
+              </button>
+              <button
+                onClick={() => setAddOpen(true)}
+                className="rounded-lg bg-green-600 px-5 py-2.5 text-base font-semibold text-white shadow active:bg-green-700"
+              >
+                Add New Item
+              </button>
+              <button
+                onClick={() => handlePrintTags()}
+                disabled={printing}
+                title="Prints tags for the items currently shown (apply search/filters to narrow)"
+                className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-base font-semibold text-gray-800 shadow-sm active:bg-gray-100 disabled:opacity-50"
+              >
+                {printing
+                  ? "Generating…"
+                  : `Print Tags (${visibleItems.length})`}
+              </button>
+              <button
+                onClick={() => signOut(auth)}
+                title={user.email || "Sign out"}
+                className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-base font-semibold text-gray-600 shadow-sm active:bg-gray-100"
+              >
+                Sign Out
+              </button>
+            </div>
+
+            {/* Mobile: overflow menu */}
+            <button
+              onClick={() => setMenuOpen((v) => !v)}
+              aria-label="More actions"
+              aria-expanded={menuOpen}
+              className="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-xl font-bold leading-none text-gray-700 active:bg-gray-100 sm:hidden"
+            >
+              ☰
+            </button>
+          </div>
         </div>
+
+        {/* Mobile dropdown panel */}
+        {menuOpen && (
+          <div className="mt-3 grid gap-2 sm:hidden">
+            <button
+              onClick={() => {
+                setMenuOpen(false);
+                setAddOpen(true);
+              }}
+              className="rounded-lg bg-green-600 px-4 py-3 text-base font-semibold text-white active:bg-green-700"
+            >
+              Add New Item
+            </button>
+            <button
+              onClick={() => {
+                setMenuOpen(false);
+                handlePrintTags();
+              }}
+              disabled={printing}
+              className="rounded-lg border border-gray-300 bg-white px-4 py-3 text-base font-semibold text-gray-800 active:bg-gray-100 disabled:opacity-50"
+            >
+              {printing
+                ? "Generating…"
+                : `Print Tags (${visibleItems.length})`}
+            </button>
+            <button
+              onClick={() => {
+                setMenuOpen(false);
+                pams.download();
+              }}
+              disabled={pams.loading}
+              className="rounded-lg border border-gray-300 bg-white px-4 py-3 text-base font-semibold text-gray-800 active:bg-gray-100 disabled:opacity-50"
+            >
+              {pams.loading ? "…" : "Download CSV"}
+            </button>
+            <button
+              onClick={() => {
+                setMenuOpen(false);
+                signOut(auth);
+              }}
+              className="rounded-lg border border-gray-300 bg-white px-4 py-3 text-base font-semibold text-gray-600 active:bg-gray-100"
+            >
+              Sign Out
+            </button>
+          </div>
+        )}
       </header>
 
       <div className="mx-auto max-w-7xl px-4 py-6">
