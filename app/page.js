@@ -12,6 +12,7 @@ import Login from "../components/Login";
 import AddItemModal from "../components/AddItemModal";
 import AddUnitsModal from "../components/AddUnitsModal";
 import { listAssetTags } from "../lib/assets";
+import LocationsModal from "../components/LocationsModal";
 
 export default function DashboardPage() {
   // undefined = auth state still resolving; null = signed out; object = signed in
@@ -42,6 +43,7 @@ function InventoryDashboard({ user }) {
   const [scannerOpen, setScannerOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [unitsItem, setUnitsItem] = useState(null);
+  const [locationsOpen, setLocationsOpen] = useState(false);
   const [printing, setPrinting] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -181,6 +183,12 @@ function InventoryDashboard({ user }) {
                 Add New Item
               </button>
               <button
+                onClick={() => setLocationsOpen(true)}
+                className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-base font-semibold text-gray-800 shadow-sm active:bg-gray-100"
+              >
+                Locations
+              </button>
+              <button
                 onClick={() => handlePrintTags()}
                 disabled={printing}
                 title="One bin tag per item currently shown (item-level). For individual unit tags, use Add units / Print unit tags on a card."
@@ -222,6 +230,15 @@ function InventoryDashboard({ user }) {
               className="rounded-lg bg-green-600 px-4 py-3 text-base font-semibold text-white active:bg-green-700"
             >
               Add New Item
+            </button>
+            <button
+              onClick={() => {
+                setMenuOpen(false);
+                setLocationsOpen(true);
+              }}
+              className="rounded-lg border border-gray-300 bg-white px-4 py-3 text-base font-semibold text-gray-800 active:bg-gray-100"
+            >
+              Locations
             </button>
             <button
               onClick={() => {
@@ -403,6 +420,9 @@ function InventoryDashboard({ user }) {
       {addOpen && <AddItemModal onClose={() => setAddOpen(false)} />}
       {unitsItem && (
         <AddUnitsModal item={unitsItem} onClose={() => setUnitsItem(null)} />
+      )}
+      {locationsOpen && (
+        <LocationsModal onClose={() => setLocationsOpen(false)} />
       )}
       {scannerOpen && <Scanner onClose={() => setScannerOpen(false)} />}
     </main>
