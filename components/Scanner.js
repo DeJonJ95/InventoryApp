@@ -23,6 +23,8 @@ export default function Scanner({ onClose }) {
   const [loadingItem, setLoadingItem] = useState(false);
   const [activeItem, setActiveItem] = useState(null); // { id, ...data } or null
   const [draftStock, setDraftStock] = useState(0);
+  const [draftOnOrder, setDraftOnOrder] = useState(0);
+  const [draftUsingQty, setDraftUsingQty] = useState(0);
   const [saving, setSaving] = useState(false);
   const [notFoundId, setNotFoundId] = useState("");
 
@@ -50,6 +52,8 @@ export default function Scanner({ onClose }) {
       const data = snap.data();
       setActiveItem({ id: snap.id, ...data });
       setDraftStock(Number(data.inStock) || 0);
+      setDraftOnOrder(Number(data.onOrder) || 0);
+      setDraftUsingQty(Number(data.usingQty) || 0);
     } catch (err) {
       console.error("Failed to fetch scanned item:", err);
       setNotFoundId(itemId);
@@ -78,6 +82,8 @@ export default function Scanner({ onClose }) {
     try {
       await updateDoc(doc(db, "items", activeItem.id), {
         inStock: draftStock,
+        onOrder: draftOnOrder,
+        usingQty: draftUsingQty,
       });
       resumeScanning();
     } catch (err) {
@@ -86,7 +92,7 @@ export default function Scanner({ onClose }) {
     } finally {
       setSaving(false);
     }
-  }, [activeItem, draftStock, resumeScanning]);
+  }, [activeItem, draftStock, draftOnOrder, draftUsingQty, resumeScanning]);
 
   // Start the camera on mount; tear it down on unmount.
   useEffect(() => {
@@ -240,6 +246,41 @@ export default function Scanner({ onClose }) {
             >
               +
             </button>
+          </div>
+
+          <div className="mt-5 grid grid-cols-2 gap-3">
+            <label className="block">
+              <span className="text-sm font-medium text-gray-600">
+                On Order
+              </span>
+              <input
+                type="number"
+                inputMode="numeric"
+                min={0}
+                value={draftOnOrder}
+                disabled={saving}
+                onChange={(e) =>
+                  setDraftOnOrder(Math.max(0, Math.floor(+e.target.value || 0)))
+                }
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-3 text-lg tabular-nums disabled:opacity-50"
+              />
+            </label>
+            <label className="block">
+              <span className="text-sm font-medium text-gray-600">
+                Using Qty
+              </span>
+              <input
+                type="number"
+                inputMode="numeric"
+                min={0}
+                value={draftUsingQty}
+                disabled={saving}
+                onChange={(e) =>
+                  setDraftUsingQty(Math.max(0, Math.floor(+e.target.value || 0)))
+                }
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-3 text-lg tabular-nums disabled:opacity-50"
+              />
+            </label>
           </div>
 
           <div className="mt-6 flex gap-3">
