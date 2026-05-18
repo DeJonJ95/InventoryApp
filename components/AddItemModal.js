@@ -139,8 +139,8 @@ export default function AddItemModal({ onClose }) {
             className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-3 text-base focus:border-blue-500 focus:outline-none disabled:opacity-50"
           >
             {PAMS_STORAGES.map((s) => (
-              <option key={s} value={s}>
-                {s}
+              <option key={s.code} value={s.code}>
+                {s.label}
               </option>
             ))}
           </select>

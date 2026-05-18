@@ -9,6 +9,7 @@ import {
   imgUrl,
   FALLBACK_IMG,
   PAMS_STORAGES,
+  STORAGE_CODES,
   DEFAULT_STORAGE,
 } from "../lib/items";
 import { selectAllProps } from "../lib/ui";
@@ -27,7 +28,7 @@ export default function ManageItemModal({ item, onClose }) {
 
   const [syncPams, setSyncPams] = useState(item.syncToPams === true);
   const [storageLoc, setStorageLoc] = useState(
-    PAMS_STORAGES.includes(item.storage) ? item.storage : DEFAULT_STORAGE
+    STORAGE_CODES.includes(item.storage) ? item.storage : DEFAULT_STORAGE
   );
   const [removeN, setRemoveN] = useState(1);
   const [threshold, setThreshold] = useState(Number(item.lowThreshold) || 0);
@@ -184,8 +185,8 @@ export default function ManageItemModal({ item, onClose }) {
               className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-base focus:border-blue-500 focus:outline-none"
             >
               {PAMS_STORAGES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
+                <option key={s.code} value={s.code}>
+                  {s.label}
                 </option>
               ))}
             </select>
