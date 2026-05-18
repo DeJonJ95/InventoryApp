@@ -1,0 +1,19 @@
+{
+  "name": "inventory-functions",
+  "description": "Cloud Functions for the inventory dashboard",
+  "main": "index.js",
+  "engines": {
+    "node": "20"
+  },
+  "scripts": {
+    "serve": "firebase emulators:start --only functions",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.3.0",
+    "firebase-functions": "^5.0.1",
+    "resend": "^3.4.0"
+  },
+  "private": true
+}
