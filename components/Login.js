@@ -46,23 +46,23 @@ export default function Login() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-100 via-white to-amber-50/30 px-4">
+    <main className="flex min-h-screen items-center justify-center bg-brand-light px-4">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-xl ring-1 ring-slate-200/60"
+        className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-xl ring-1 ring-brand-surface"
       >
         <div className="text-center">
           <span className="text-4xl">📦</span>
-          <h1 className="mt-2 text-2xl font-bold text-slate-800">
+          <h1 className="mt-2 text-2xl font-bold text-brand-darkest">
             Inventory
           </h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-brand-darkest/50">
             Sign in to continue
           </p>
         </div>
 
         <label className="mt-6 block">
-          <span className="text-sm font-semibold text-slate-700">Email</span>
+          <span className="text-sm font-semibold text-brand-darkest">Email</span>
           <input
             type="email"
             autoComplete="username"
@@ -70,12 +70,12 @@ export default function Login() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={submitting}
-            className="mt-1.5 w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3 text-base transition focus:border-indigo-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100 disabled:opacity-50"
+            className="mt-1.5 w-full rounded-xl border-2 border-brand-surface bg-brand-surface/50 px-4 py-3 text-base transition focus:border-brand-teal focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-teal/20 disabled:opacity-50"
           />
         </label>
 
         <label className="mt-4 block">
-          <span className="text-sm font-semibold text-slate-700">Password</span>
+          <span className="text-sm font-semibold text-brand-darkest">Password</span>
           <input
             type="password"
             autoComplete="current-password"
@@ -83,12 +83,12 @@ export default function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={submitting}
-            className="mt-1.5 w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3 text-base transition focus:border-indigo-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100 disabled:opacity-50"
+            className="mt-1.5 w-full rounded-xl border-2 border-brand-surface bg-brand-surface/50 px-4 py-3 text-base transition focus:border-brand-teal focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-teal/20 disabled:opacity-50"
           />
         </label>
 
         {error && (
-          <p className="mt-4 rounded-xl bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 ring-1 ring-red-100">
+          <p className="mt-4 rounded-xl bg-brand-gold/10 px-4 py-2.5 text-sm font-semibold text-brand-darkest ring-1 ring-brand-gold/30">
             {error}
           </p>
         )}
@@ -96,7 +96,7 @@ export default function Login() {
         <button
           type="submit"
           disabled={submitting}
-          className="mt-6 w-full rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 py-3.5 text-base font-bold text-white shadow-lg shadow-indigo-500/20 transition hover:from-indigo-400 hover:to-indigo-500 hover:shadow-xl active:scale-[0.98] disabled:opacity-50"
+          className="mt-6 w-full rounded-xl bg-brand-teal py-3.5 text-base font-bold text-white shadow-lg shadow-brand-teal/20 transition hover:bg-brand-teal2 hover:shadow-xl active:scale-[0.98] disabled:opacity-50"
         >
           {submitting ? 'Signing in…' : 'Sign In'}
         </button>

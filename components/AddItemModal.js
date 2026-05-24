@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
@@ -70,42 +70,42 @@ export default function AddItemModal({ onClose }) {
         onSubmit={handleSubmit}
         className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6"
       >
-        <h2 className="text-xl font-bold text-gray-900">Add New Item</h2>
-        <p className="mt-1 text-sm text-gray-500">
+        <h2 className="text-xl font-bold text-brand-darkest">Add New Item</h2>
+        <p className="mt-1 text-sm text-brand-darkest/50">
           In Stock starts at 0 — scan and count it in afterward.
         </p>
 
         <label className="mt-5 block">
-          <span className="text-sm font-medium text-gray-700">
-            Item ID <span className="text-red-600">*</span>
+          <span className="text-sm font-medium text-brand-darkest/80">
+            Item ID <span className="text-brand-darkest">*</span>
           </span>
           <input
             value={itemId}
             onChange={(e) => setItemId(e.target.value)}
             disabled={saving}
             autoFocus
-            className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-3 text-base focus:border-blue-500 focus:outline-none disabled:opacity-50"
+            className="mt-1 w-full rounded-lg border border-brand-surface px-3 py-3 text-base focus:border-brand-teal focus:outline-none disabled:opacity-50"
           />
-          <span className="mt-1 block text-xs text-gray-400">
+          <span className="mt-1 block text-xs text-brand-darkest/40">
             Becomes the QR code / PAMS BarCode. Cannot be changed later.
           </span>
         </label>
 
         <label className="mt-4 block">
-          <span className="text-sm font-medium text-gray-700">
-            Item Name <span className="text-red-600">*</span>
+          <span className="text-sm font-medium text-brand-darkest/80">
+            Item Name <span className="text-brand-darkest">*</span>
           </span>
           <input
             value={itemName}
             onChange={(e) => setItemName(e.target.value)}
             disabled={saving}
-            className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-3 text-base focus:border-blue-500 focus:outline-none disabled:opacity-50"
+            className="mt-1 w-full rounded-lg border border-brand-surface px-3 py-3 text-base focus:border-brand-teal focus:outline-none disabled:opacity-50"
           />
         </label>
 
         <div className="mt-4 grid grid-cols-2 gap-3">
           <label className="block">
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-brand-darkest/80">
               Low Threshold
             </span>
             <input
@@ -116,27 +116,27 @@ export default function AddItemModal({ onClose }) {
               onChange={(e) => setLowThreshold(e.target.value)}
               {...selectAllProps}
               disabled={saving}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-3 text-base focus:border-blue-500 focus:outline-none disabled:opacity-50"
+              className="mt-1 w-full rounded-lg border border-brand-surface px-3 py-3 text-base focus:border-brand-teal focus:outline-none disabled:opacity-50"
             />
           </label>
           <label className="block">
-            <span className="text-sm font-medium text-gray-700">Unit</span>
+            <span className="text-sm font-medium text-brand-darkest/80">Unit</span>
             <input
               value={unit}
               onChange={(e) => setUnit(e.target.value)}
               disabled={saving}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-3 text-base focus:border-blue-500 focus:outline-none disabled:opacity-50"
+              className="mt-1 w-full rounded-lg border border-brand-surface px-3 py-3 text-base focus:border-brand-teal focus:outline-none disabled:opacity-50"
             />
           </label>
         </div>
 
         <label className="mt-4 block">
-          <span className="text-sm font-medium text-gray-700">Storage</span>
+          <span className="text-sm font-medium text-brand-darkest/80">Storage</span>
           <select
             value={storage}
             onChange={(e) => setStorage(e.target.value)}
             disabled={saving}
-            className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-3 text-base focus:border-blue-500 focus:outline-none disabled:opacity-50"
+            className="mt-1 w-full rounded-lg border border-brand-surface bg-white px-3 py-3 text-base focus:border-brand-teal focus:outline-none disabled:opacity-50"
           >
             {PAMS_STORAGES.map((s) => (
               <option key={s.code} value={s.code}>
@@ -147,7 +147,7 @@ export default function AddItemModal({ onClose }) {
         </label>
 
         {error && (
-          <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+          <p className="mt-4 rounded-lg bg-brand-gold/10 px-3 py-2 text-sm font-medium text-brand-darkest">
             {error}
           </p>
         )}
@@ -157,14 +157,14 @@ export default function AddItemModal({ onClose }) {
             type="button"
             onClick={onClose}
             disabled={saving}
-            className="flex-1 rounded-lg bg-gray-200 py-3 text-base font-semibold text-gray-800 active:bg-gray-300 disabled:opacity-50"
+            className="flex-1 rounded-lg bg-brand-surface py-3 text-base font-semibold text-brand-darkest active:bg-brand-surface/80 disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={saving}
-            className="flex-1 rounded-lg bg-blue-600 py-3 text-base font-semibold text-white active:bg-blue-700 disabled:opacity-50"
+            className="flex-1 rounded-lg bg-brand-teal py-3 text-base font-semibold text-white active:bg-brand-teal2 disabled:opacity-50"
           >
             {saving ? "Saving…" : "Add Item"}
           </button>

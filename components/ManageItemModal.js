@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { doc, updateDoc } from "firebase/firestore";
@@ -133,26 +133,26 @@ export default function ManageItemModal({ item, onClose }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
       <div className="w-full max-w-sm max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6">
         <div className="sticky top-0 z-10 flex items-center justify-between bg-white pb-3 -mt-1 pt-1">
-          <h2 className="text-xl font-bold text-gray-900">Manage Item</h2>
+          <h2 className="text-xl font-bold text-brand-darkest">Manage Item</h2>
           <button
             onClick={onClose}
-            className="rounded-md bg-gray-100 px-3 py-1.5 text-sm font-semibold text-gray-700 active:bg-gray-200"
+            className="rounded-md bg-brand-surface px-3 py-1.5 text-sm font-semibold text-brand-darkest/80 active:bg-brand-surface"
           >
             Close
           </button>
         </div>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-brand-darkest/50">
           <span className="font-semibold">{name}</span> · {inStock} in stock
           {item.tracked ? ` · ${out} out` : ""}
         </p>
 
-        <div className="mt-5 rounded-xl border border-gray-200 p-4">
+        <div className="mt-5 rounded-xl border border-brand-surface p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-semibold text-gray-800">
+              <p className="text-sm font-semibold text-brand-darkest">
                 Reorder via PAMS
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-brand-darkest/50">
                 {item.tracked
                   ? "Unavailable — tracked equipment isn't a PAMS consumable. PAMS rejects equipment in the supplies import."
                   : "Include this consumable in the nightly PAMS file. Only for vendor-reordered supplies, never equipment. The item must be in PAMS's Consumable (non-tracking) category, or PAMS rejects it — re-categorize it in PAMS first if needed."}
@@ -164,7 +164,7 @@ export default function ManageItemModal({ item, onClose }) {
               aria-checked={syncPams && !item.tracked}
               disabled={item.tracked}
               className={`relative h-7 w-12 shrink-0 rounded-full transition disabled:opacity-40 ${
-                syncPams && !item.tracked ? "bg-blue-600" : "bg-gray-300"
+                syncPams && !item.tracked ? "bg-brand-teal" : "bg-brand-surface/80"
               }`}
             >
               <span
@@ -177,15 +177,15 @@ export default function ManageItemModal({ item, onClose }) {
 
           <div className="mt-4 flex items-center justify-between border-t pt-4">
             <div>
-              <p className="text-sm font-semibold text-gray-800">Storage</p>
-              <p className="text-xs text-gray-500">
+              <p className="text-sm font-semibold text-brand-darkest">Storage</p>
+              <p className="text-xs text-brand-darkest/50">
                 Where it's stored (sent to PAMS with the quantity).
               </p>
             </div>
             <select
               value={storageLoc}
               onChange={(e) => changeStorage(e.target.value)}
-              className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-base focus:border-blue-500 focus:outline-none"
+              className="rounded-lg border border-brand-surface bg-white px-3 py-2 text-base focus:border-brand-teal focus:outline-none"
             >
               {PAMS_STORAGES.map((s) => (
                 <option key={s.code} value={s.code}>
@@ -196,9 +196,9 @@ export default function ManageItemModal({ item, onClose }) {
           </div>
         </div>
 
-        <div className="mt-5 rounded-xl border border-gray-200 p-4">
-          <p className="text-sm font-semibold text-gray-800">Photo</p>
-          <p className="text-xs text-gray-500">
+        <div className="mt-5 rounded-xl border border-brand-surface p-4">
+          <p className="text-sm font-semibold text-brand-darkest">Photo</p>
+          <p className="text-xs text-brand-darkest/50">
             Take or choose a picture of this item.
           </p>
           <div className="mt-3 flex items-center gap-3">
@@ -214,7 +214,7 @@ export default function ManageItemModal({ item, onClose }) {
             <label className="flex-1">
               <span
                 className={`block cursor-pointer rounded-lg py-2.5 text-center text-base font-semibold text-white ${
-                  busy ? "bg-blue-300" : "bg-blue-600 active:bg-blue-700"
+                  busy ? "bg-brand-teal/40" : "bg-brand-teal active:bg-brand-teal2"
                 }`}
               >
                 {busy ? "Working…" : "Take / choose photo"}
@@ -230,17 +230,17 @@ export default function ManageItemModal({ item, onClose }) {
             </label>
           </div>
           {photoMsg && (
-            <p className="mt-2 text-sm font-medium text-green-700">
+            <p className="mt-2 text-sm font-medium text-brand-teal">
               {photoMsg}
             </p>
           )}
         </div>
 
-        <div className="mt-5 rounded-xl border border-gray-200 p-4">
-          <p className="text-sm font-semibold text-gray-800">
+        <div className="mt-5 rounded-xl border border-brand-surface p-4">
+          <p className="text-sm font-semibold text-brand-darkest">
             Low threshold
           </p>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-brand-darkest/50">
             Alert/reorder when In Stock drops below this.
           </p>
           <div className="mt-3 flex gap-2">
@@ -254,29 +254,29 @@ export default function ManageItemModal({ item, onClose }) {
                 setThreshold(Math.max(0, Math.floor(+e.target.value || 0)))
               }
               {...selectAllProps}
-              className="w-24 rounded-lg border border-gray-300 px-3 py-2.5 text-lg tabular-nums disabled:opacity-50"
+              className="w-24 rounded-lg border border-brand-surface px-3 py-2.5 text-lg tabular-nums disabled:opacity-50"
             />
             <button
               onClick={handleSaveThreshold}
               disabled={busy}
-              className="flex-1 rounded-lg bg-blue-600 py-2.5 text-base font-semibold text-white active:bg-blue-700 disabled:opacity-50"
+              className="flex-1 rounded-lg bg-brand-teal py-2.5 text-base font-semibold text-white active:bg-brand-teal2 disabled:opacity-50"
             >
               {busy ? "Working…" : "Save threshold"}
             </button>
           </div>
           {thresholdMsg && (
-            <p className="mt-2 text-sm font-medium text-green-700">
+            <p className="mt-2 text-sm font-medium text-brand-teal">
               {thresholdMsg}
             </p>
           )}
         </div>
 
         {item.tracked && (
-          <div className="mt-5 rounded-xl border border-gray-200 p-4">
-            <p className="text-sm font-semibold text-gray-800">
+          <div className="mt-5 rounded-xl border border-brand-surface p-4">
+            <p className="text-sm font-semibold text-brand-darkest">
               Remove spare units
             </p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-brand-darkest/50">
               Fixes an over-create. Only removes in-warehouse units — never
               ones checked out.
             </p>
@@ -291,46 +291,46 @@ export default function ManageItemModal({ item, onClose }) {
                   setRemoveN(Math.max(1, Math.floor(+e.target.value || 1)))
                 }
                 {...selectAllProps}
-                className="w-24 rounded-lg border border-gray-300 px-3 py-2.5 text-lg tabular-nums disabled:opacity-50"
+                className="w-24 rounded-lg border border-brand-surface px-3 py-2.5 text-lg tabular-nums disabled:opacity-50"
               />
               <button
                 onClick={handleRemove}
                 disabled={busy}
-                className="flex-1 rounded-lg bg-gray-800 py-2.5 text-base font-semibold text-white active:bg-gray-700 disabled:opacity-50"
+                className="flex-1 rounded-lg bg-brand-darkest py-2.5 text-base font-semibold text-white active:bg-brand-dark disabled:opacity-50"
               >
                 {busy ? "Working…" : "Remove"}
               </button>
             </div>
             {msg && (
-              <p className="mt-2 text-sm font-medium text-green-700">{msg}</p>
+              <p className="mt-2 text-sm font-medium text-brand-teal">{msg}</p>
             )}
           </div>
         )}
 
-        <div className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4">
-          <p className="text-sm font-semibold text-red-800">Danger zone</p>
-          <p className="text-xs text-red-600">
+        <div className="mt-5 rounded-xl border border-brand-gold/30 bg-brand-gold/10 p-4">
+          <p className="text-sm font-semibold text-brand-darkest">Danger zone</p>
+          <p className="text-xs text-brand-darkest">
             Deletes the item and all its units. Blocked if any unit is checked
             out. Does not remove it from PAMS.
           </p>
           <button
             onClick={handleDelete}
             disabled={busy}
-            className="mt-3 w-full rounded-lg bg-red-600 py-2.5 text-base font-semibold text-white active:bg-red-700 disabled:opacity-50"
+            className="mt-3 w-full rounded-lg bg-brand-gold py-2.5 text-base font-semibold text-white active:bg-brand-gold disabled:opacity-50"
           >
             {busy ? "Working…" : "Delete this item"}
           </button>
         </div>
 
         {error && (
-          <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+          <p className="mt-4 rounded-lg bg-brand-gold/10 px-3 py-2 text-sm font-medium text-brand-darkest">
             {error}
           </p>
         )}
 
         <button
           onClick={onClose}
-          className="mt-5 w-full rounded-lg bg-gray-100 py-2.5 text-base font-semibold text-gray-700 active:bg-gray-200 sm:hidden"
+          className="mt-5 w-full rounded-lg bg-brand-surface py-2.5 text-base font-semibold text-brand-darkest/80 active:bg-brand-surface sm:hidden"
         >
           Close
         </button>

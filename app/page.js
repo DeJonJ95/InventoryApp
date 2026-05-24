@@ -28,8 +28,8 @@ export default function DashboardPage() {
 
   if (user === undefined) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-100 via-white to-amber-50/30">
-        <div className="flex flex-col items-center gap-3 text-slate-400">
+      <main className="flex min-h-screen items-center justify-center bg-brand-light">
+        <div className="flex flex-col items-center gap-3 text-brand-darkest/40">
           <span className="animate-spin text-3xl">⏳</span>
           <p className="text-base font-medium">Loading…</p>
         </div>
@@ -155,9 +155,9 @@ function InventoryDashboard({ user }) {
   }, []);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-100 via-white to-amber-50/30 pb-24">
+    <main className="min-h-screen bg-brand-light pb-24">
       {/* ── Header ──────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-20 bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 px-4 py-3 text-white shadow-lg sm:px-5 sm:py-4">
+      <header className="sticky top-0 z-20 bg-brand-darkest px-4 py-3 text-white shadow-lg sm:px-5 sm:py-4">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3">
             <span className="text-2xl">📦</span>
@@ -175,13 +175,13 @@ function InventoryDashboard({ user }) {
           <div className="hidden items-center gap-2 sm:flex">
             <button
               onClick={() => setScannerOpen(true)}
-              className="rounded-lg bg-indigo-500 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-indigo-500/25 transition hover:bg-indigo-400 hover:shadow-lg active:scale-95"
+              className="rounded-lg bg-brand-teal px-4 py-2 text-sm font-semibold text-white shadow-md shadow-brand-teal/25 transition hover:bg-brand-teal2 hover:shadow-lg active:scale-95"
             >
               Scan Item
             </button>
             <button
               onClick={() => setAddOpen(true)}
-              className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-emerald-500/25 transition hover:bg-emerald-400 hover:shadow-lg active:scale-95"
+              className="rounded-lg bg-brand-gold px-4 py-2 text-sm font-semibold text-brand-darkest shadow-md shadow-brand-gold/25 transition hover:bg-amber-400 hover:shadow-lg active:scale-95"
             >
               + New Item
             </button>
@@ -243,7 +243,7 @@ function InventoryDashboard({ user }) {
           <div className="mx-auto mt-3 grid max-w-7xl gap-2 sm:hidden">
             <button
               onClick={() => { setMenuOpen(false); setAddOpen(true); }}
-              className="rounded-lg bg-emerald-500 px-4 py-3 text-base font-semibold text-white shadow-md active:bg-emerald-600"
+              className="rounded-lg bg-brand-gold px-4 py-3 text-base font-semibold text-brand-darkest shadow-md active:bg-amber-500"
             >
               + Add New Item
             </button>
@@ -294,10 +294,10 @@ function InventoryDashboard({ user }) {
         {!loading && !error && items.length > 0 && (
           <div className="mb-5 grid grid-cols-3 gap-3 sm:grid-cols-4">
             {[
-              { label: 'Total', value: items.length, color: 'from-slate-600 to-slate-700', icon: '📋' },
-              { label: 'In Stock', value: items.reduce((s, i) => s + (Number(i.inStock) || 0), 0), color: 'from-emerald-500 to-emerald-600', icon: '✅' },
-              { label: 'Low Stock', value: items.filter((i) => (Number(i.inStock) || 0) < (Number(i.lowThreshold) || 0)).length, color: 'from-red-500 to-rose-500', icon: '⚠️' },
-              { label: 'On Order', value: items.reduce((s, i) => s + (Number(i.onOrder) || 0), 0), color: 'from-amber-500 to-orange-500', icon: '🚚' },
+              { label: 'Total', value: items.length, color: 'from-brand-darkest to-brand-dark', icon: '📋' },
+              { label: 'In Stock', value: items.reduce((s, i) => s + (Number(i.inStock) || 0), 0), color: 'from-brand-teal to-brand-teal2', icon: '✅' },
+              { label: 'Low Stock', value: items.filter((i) => (Number(i.inStock) || 0) < (Number(i.lowThreshold) || 0)).length, color: 'from-brand-gold to-amber-500', icon: '⚠️' },
+              { label: 'On Order', value: items.reduce((s, i) => s + (Number(i.onOrder) || 0), 0), color: 'from-brand-dark to-brand-teal', icon: '🚚' },
             ].map((stat) => (
               <div
                 key={stat.label}
@@ -316,20 +316,20 @@ function InventoryDashboard({ user }) {
         {!loading && !error && items.length > 0 && (
           <div className="mb-5 flex flex-wrap items-center gap-2.5">
             <div className="relative min-w-[200px] flex-1">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">🔍</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-brand-darkest/40">🔍</span>
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search by name or ID…"
-                className="w-full rounded-xl border-2 border-slate-200 bg-white py-2.5 pl-9 pr-4 text-base shadow-sm transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                className="w-full rounded-xl border-2 border-brand-surface bg-white py-2.5 pl-9 pr-4 text-base shadow-sm transition focus:border-brand-teal focus:outline-none focus:ring-2 focus:ring-brand-teal/20"
               />
             </div>
             <button
               onClick={() => setLowOnly((v) => !v)}
               className={`rounded-full border-2 px-4 py-2 text-sm font-semibold transition active:scale-95 ${
                 lowOnly
-                  ? 'border-red-500 bg-red-50 text-red-700 shadow-sm'
-                  : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+                  ? 'border-brand-gold bg-brand-gold/10 text-brand-darkest shadow-sm'
+                  : 'border-brand-surface bg-white text-brand-darkest/60 hover:border-brand-darkest/20'
               }`}
             >
               ⚠️ Low stock
@@ -338,14 +338,14 @@ function InventoryDashboard({ user }) {
               onClick={() => setUncountedOnly((v) => !v)}
               className={`rounded-full border-2 px-4 py-2 text-sm font-semibold transition active:scale-95 ${
                 uncountedOnly
-                  ? 'border-indigo-500 bg-indigo-50 text-indigo-700 shadow-sm'
-                  : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+                  ? 'border-brand-teal bg-brand-teal/10 text-brand-darkest shadow-sm'
+                  : 'border-brand-surface bg-white text-brand-darkest/60 hover:border-brand-darkest/20'
               }`}
             >
               0️⃣ Uncounted
             </button>
             {visibleItems.length !== items.length && (
-              <span className="text-sm font-medium text-slate-500">
+              <span className="text-sm font-medium text-brand-darkest/50">
                 Showing {visibleItems.length} of {items.length}
               </span>
             )}
@@ -353,21 +353,21 @@ function InventoryDashboard({ user }) {
         )}
 
         {loading && (
-          <div className="flex flex-col items-center justify-center py-24 text-slate-400">
+          <div className="flex flex-col items-center justify-center py-24 text-brand-darkest/40">
             <span className="animate-spin text-4xl">⏳</span>
             <p className="mt-3 text-base font-medium">Loading inventory…</p>
           </div>
         )}
 
         {error && (
-          <div className="flex flex-col items-center justify-center py-24 text-red-500">
+          <div className="flex flex-col items-center justify-center py-24 text-brand-gold">
             <span className="text-4xl">⚠️</span>
             <p className="mt-3 text-base font-medium">{error}</p>
           </div>
         )}
 
         {!loading && !error && items.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-24 text-slate-400">
+          <div className="flex flex-col items-center justify-center py-24 text-brand-darkest/40">
             <span className="text-5xl">📦</span>
             <p className="mt-4 text-lg font-semibold">No items yet</p>
             <p className="mt-1 text-sm">Tap Scan or Add New Item to get started.</p>
@@ -375,7 +375,7 @@ function InventoryDashboard({ user }) {
         )}
 
         {!loading && !error && items.length > 0 && visibleItems.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-24 text-slate-400">
+          <div className="flex flex-col items-center justify-center py-24 text-brand-darkest/40">
             <span className="text-4xl">🔍</span>
             <p className="mt-3 text-base font-medium">No items match</p>
             <p className="mt-1 text-sm">Try adjusting your search or filters.</p>
@@ -386,7 +386,7 @@ function InventoryDashboard({ user }) {
         {!scannerOpen && (
           <button
             onClick={() => setScannerOpen(true)}
-            className="fixed bottom-6 right-6 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-indigo-500 text-white shadow-lg shadow-indigo-500/30 transition hover:bg-indigo-400 hover:shadow-xl active:scale-90 sm:hidden"
+            className="fixed bottom-6 right-6 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-brand-teal text-white shadow-lg shadow-brand-teal/30 transition hover:bg-brand-teal2 hover:shadow-xl active:scale-90 sm:hidden"
             aria-label="Scan item"
           >
             <span className="text-2xl">📷</span>
@@ -400,15 +400,15 @@ function InventoryDashboard({ user }) {
             const onOrder = Number(item.onOrder) || 0;
             const isLow = lowThreshold > 0 && inStock < lowThreshold;
             const statusColor = isLow
-              ? 'from-red-500 to-rose-500'
+              ? 'from-brand-gold to-amber-500'
               : onOrder > 0
-                ? 'from-amber-400 to-orange-400'
-                : 'from-emerald-400 to-teal-400';
+                ? 'from-brand-teal to-brand-teal2'
+                : 'from-brand-teal2 to-brand-teal';
 
             return (
               <div
                 key={item.id}
-                className="group overflow-hidden rounded-2xl bg-white shadow-md ring-1 ring-slate-200/60 transition hover:shadow-xl hover:-translate-y-1 active:scale-[0.98]"
+                className="group overflow-hidden rounded-2xl bg-white shadow-md ring-1 ring-brand-surface transition hover:shadow-xl hover:-translate-y-1 active:scale-[0.98]"
               >
                 {/* Accent bar at top */}
                 <div className={`h-1.5 bg-gradient-to-r ${statusColor}`} />
@@ -421,55 +421,55 @@ function InventoryDashboard({ user }) {
                       e.currentTarget.onerror = null;
                       e.currentTarget.src = FALLBACK_IMG;
                     }}
-                    className="h-40 w-full bg-gradient-to-br from-slate-100 to-slate-200 object-cover sm:h-44"
+                    className="h-40 w-full bg-brand-surface object-cover sm:h-44"
                   />
                   {isLow && (
-                    <span className="absolute left-3 top-3 rounded-full bg-red-500 px-2.5 py-0.5 text-xs font-bold text-white shadow-md">
+                    <span className="absolute left-3 top-3 rounded-full bg-brand-gold px-2.5 py-0.5 text-xs font-bold text-brand-darkest shadow-md">
                       LOW
                     </span>
                   )}
                   {item.tracked && (
-                    <span className="absolute right-3 top-3 rounded-full bg-slate-800/70 px-2.5 py-0.5 text-xs font-bold text-white backdrop-blur-sm">
+                    <span className="absolute right-3 top-3 rounded-full bg-brand-darkest/80 px-2.5 py-0.5 text-xs font-bold text-white backdrop-blur-sm">
                       Tracked
                     </span>
                   )}
                 </div>
 
                 <div className="p-4">
-                  <h2 className="truncate text-base font-bold text-slate-800 sm:text-lg">
+                  <h2 className="truncate text-base font-bold text-brand-darkest sm:text-lg">
                     {item.itemName || item.id}
                   </h2>
-                  <p className="truncate text-xs font-medium text-slate-400">
+                  <p className="truncate text-xs font-medium text-brand-darkest/40">
                     {item.id}
                   </p>
 
                   <div className="mt-3 flex items-end justify-between">
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-brand-darkest/40">
                         In Stock
                       </p>
                       <p
                         className={`text-3xl font-extrabold tabular-nums ${
-                          isLow ? 'text-red-500' : 'text-slate-800'
+                          isLow ? 'text-brand-gold' : 'text-brand-darkest'
                         }`}
                       >
                         {inStock}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-brand-darkest/40">
                         On Order
                       </p>
-                      <p className="text-xl font-bold tabular-nums text-amber-600">
+                      <p className="text-xl font-bold tabular-nums text-brand-teal">
                         {onOrder}
                       </p>
                     </div>
                     {item.tracked && (
                       <div className="text-right">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-brand-darkest/40">
                           Out
                         </p>
-                        <p className="text-xl font-bold tabular-nums text-slate-600">
+                        <p className="text-xl font-bold tabular-nums text-brand-darkest/70">
                           {Number(item.usingQty) || 0}
                         </p>
                       </div>
@@ -477,13 +477,13 @@ function InventoryDashboard({ user }) {
                   </div>
 
                   {lowThreshold > 0 && (
-                    <p className="mt-2 text-xs text-slate-400">
+                    <p className="mt-2 text-xs text-brand-darkest/40">
                       Threshold: <span className="font-semibold">{lowThreshold}</span>
                     </p>
                   )}
 
                   {item.syncToPams === true && item.tracked !== true && (
-                    <p className="mt-2 inline-block rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-600">
+                    <p className="mt-2 inline-block rounded-full bg-brand-teal/10 px-2.5 py-0.5 text-xs font-semibold text-brand-teal">
                       PAMS Reorder
                     </p>
                   )}
@@ -491,21 +491,21 @@ function InventoryDashboard({ user }) {
                   <div className="mt-3 flex gap-2">
                     <button
                       onClick={() => setUnitsItem(item)}
-                      className="flex-1 rounded-lg bg-slate-100 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-200 active:scale-95"
+                      className="flex-1 rounded-lg bg-brand-surface py-2 text-sm font-semibold text-brand-darkest transition hover:bg-brand-light active:scale-95"
                     >
                       + Units
                     </button>
                     <button
                       onClick={() => printItemTags(item)}
                       disabled={printing}
-                      className="flex-1 rounded-lg bg-slate-100 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-200 active:scale-95 disabled:opacity-50"
+                      className="flex-1 rounded-lg bg-brand-surface py-2 text-sm font-semibold text-brand-darkest transition hover:bg-brand-light active:scale-95 disabled:opacity-50"
                     >
                       {item.tracked ? 'Unit Tags' : 'Item Tag'}
                     </button>
                   </div>
                   <button
                     onClick={() => setManageItem(item)}
-                    className="mt-2 w-full rounded-lg py-1.5 text-xs font-medium text-slate-400 transition hover:bg-slate-50 hover:text-slate-600 active:scale-95"
+                    className="mt-2 w-full rounded-lg py-1.5 text-xs font-medium text-brand-darkest/40 transition hover:bg-brand-surface hover:text-brand-darkest active:scale-95"
                   >
                     Manage →
                   </button>
