@@ -172,7 +172,7 @@ function InventoryDashboard({ user }) {
           </div>
 
           {/* Desktop: action row */}
-          <div className="hidden items-center gap-2 sm:flex">
+          <div className="hidden items-center gap-2 md:flex">
             <button
               onClick={() => setScannerOpen(true)}
               className="rounded-lg bg-brand-teal px-4 py-2 text-sm font-semibold text-white shadow-md shadow-brand-teal/25 transition hover:bg-brand-teal2 hover:shadow-lg active:scale-95"
@@ -187,60 +187,60 @@ function InventoryDashboard({ user }) {
             </button>
             <button
               onClick={() => setLocationsOpen(true)}
-              className="rounded-lg bg-white/10 px-3 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/20 active:scale-95"
+              className="rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/20 active:scale-95"
             >
               Locations
             </button>
             <button
               onClick={() => setTrackingOpen(true)}
-              className="rounded-lg bg-white/10 px-3 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/20 active:scale-95"
+              className="rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/20 active:scale-95"
             >
               Tracking
             </button>
             <button
               onClick={() => handlePrintTags()}
               disabled={printing}
-              className="rounded-lg bg-white/10 px-3 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/20 active:scale-95 disabled:opacity-50"
+              className="rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/20 active:scale-95 disabled:opacity-50"
             >
               {printing ? '…' : `Print Tags (${visibleItems.length})`}
             </button>
             <button
               onClick={pams.download}
               disabled={pams.loading}
-              className="rounded-lg bg-white/10 px-3 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/20 active:scale-95 disabled:opacity-50"
+              className="rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/20 active:scale-95 disabled:opacity-50"
               title={pams.latest ? `Latest: ${pams.latest.name}` : 'PAMS export file (.xls)'}
             >
               PAMS
             </button>
             <button
               onClick={() => setHelpOpen(true)}
-              className="rounded-lg bg-white/10 px-3 py-2 text-sm font-semibold text-white/70 transition hover:bg-white/20 active:scale-95"
+              className="rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white/70 transition hover:bg-white/20 active:scale-95"
             >
               Help
             </button>
             <button
               onClick={() => signOut(auth)}
               title={user.email || 'Sign out'}
-              className="ml-2 rounded-lg bg-white/5 px-3 py-2 text-sm font-semibold text-white/50 transition hover:bg-white/15 hover:text-white/80 active:scale-95"
+              className="ml-2 rounded-lg bg-white/5 px-4 py-2 text-sm font-semibold text-white/50 transition hover:bg-white/15 hover:text-white/80 active:scale-95"
             >
               Sign Out
             </button>
           </div>
 
-          {/* Mobile: hamburger */}
+          {/* Hamburger: shown below md breakpoint */}
           <button
             onClick={() => setMenuOpen((v) => !v)}
             aria-label="More actions"
             aria-expanded={menuOpen}
-            className="rounded-lg bg-white/10 px-3 py-2.5 text-lg font-bold leading-none text-white active:bg-white/20 sm:hidden"
+            className="rounded-lg bg-white/10 px-3 py-2.5 text-lg font-bold leading-none text-white active:bg-white/20 md:hidden"
           >
             {menuOpen ? '✕' : '☰'}
           </button>
         </div>
 
-        {/* Mobile dropdown panel */}
+        {/* Mobile/tablet dropdown panel */}
         {menuOpen && (
-          <div className="mx-auto mt-3 grid max-w-7xl gap-2 sm:hidden">
+          <div className="mx-auto mt-3 grid max-w-7xl gap-2 md:hidden">
             <button
               onClick={() => { setMenuOpen(false); setAddOpen(true); }}
               className="rounded-lg bg-brand-gold px-4 py-3 text-base font-semibold text-brand-darkest shadow-md active:bg-amber-500"
