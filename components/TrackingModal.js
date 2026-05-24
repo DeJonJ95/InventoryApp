@@ -82,8 +82,8 @@ export default function TrackingModal({ onClose }) {
   const totalOut = groups.reduce((n, g) => n + g.units.length, 0);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 sm:items-center">
-      <div className="flex max-h-[88vh] w-full max-w-lg flex-col rounded-t-2xl bg-white p-6 sm:rounded-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+      <div className="flex max-h-[88vh] w-full max-w-lg flex-col rounded-2xl bg-white p-6">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold text-gray-900">Tracking</h2>
           <button

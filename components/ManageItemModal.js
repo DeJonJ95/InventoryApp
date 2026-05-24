@@ -130,9 +130,9 @@ export default function ManageItemModal({ item, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 sm:items-center">
-      <div className="w-full max-w-sm rounded-t-2xl bg-white p-6 sm:rounded-2xl">
-        <div className="flex items-center justify-between">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+      <div className="w-full max-w-sm max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6">
+        <div className="sticky top-0 z-10 flex items-center justify-between bg-white pb-3 -mt-1 pt-1">
           <h2 className="text-xl font-bold text-gray-900">Manage Item</h2>
           <button
             onClick={onClose}
@@ -327,6 +327,13 @@ export default function ManageItemModal({ item, onClose }) {
             {error}
           </p>
         )}
+
+        <button
+          onClick={onClose}
+          className="mt-5 w-full rounded-lg bg-gray-100 py-2.5 text-base font-semibold text-gray-700 active:bg-gray-200 sm:hidden"
+        >
+          Close
+        </button>
       </div>
     </div>
   );
