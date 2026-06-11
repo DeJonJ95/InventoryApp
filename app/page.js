@@ -3,19 +3,38 @@
 import { useEffect, useMemo, useState } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { db, auth } from "../lib/firebase";
-import { imgUrl, FALLBACK_IMG } from "../lib/items";
-import { useLatestPamsExport } from "../lib/pamsExport";
-import { generateInventoryTagsPdf } from "../lib/printTags";
-import Scanner from "../components/Scanner";
-import Login from "../components/Login";
-import AddItemModal from "../components/AddItemModal";
-import AddUnitsModal from "../components/AddUnitsModal";
-import { listAssetTags } from "../lib/assets";
-import LocationsModal from "../components/LocationsModal";
-import TrackingModal from "../components/TrackingModal";
-import HelpModal from "../components/HelpModal";
-import ManageItemModal from "../components/ManageItemModal";
+import { db, auth } from "@/lib/firebase";
+import { imgUrl, FALLBACK_IMG } from "@/lib/items";
+import { useLatestPamsExport } from "@/lib/pamsExport";
+import { generateInventoryTagsPdf } from "@/lib/printTags";
+import { listAssetTags } from "@/lib/assets";
+import Scanner from "@/components/Scanner";
+import Login from "@/components/Login";
+import AddItemModal from "@/components/AddItemModal";
+import AddUnitsModal from "@/components/AddUnitsModal";
+import LocationsModal from "@/components/LocationsModal";
+import TrackingModal from "@/components/TrackingModal";
+import HelpModal from "@/components/HelpModal";
+import ManageItemModal from "@/components/ManageItemModal";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
+  MagnifyingGlass,
+  Package,
+  Clipboard,
+  CheckCircle,
+  Warning,
+  Truck,
+  Camera,
+  List,
+  X,
+  Spinner,
+  Circle,
+  CheckSquare,
+  Square,
+} from "@phosphor-icons/react";
 
 export default function DashboardPage() {
   // undefined = auth state still resolving; null = signed out; object = signed in
@@ -30,7 +49,7 @@ export default function DashboardPage() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-brand-light">
         <div className="flex flex-col items-center gap-3 text-brand-darkest/40">
-          <span className="animate-spin text-3xl">⏳</span>
+          <Spinner className="animate-spin" size={32} aria-label="Loading" role="status" />
           <p className="text-base font-medium">Loading…</p>
         </div>
       </main>
@@ -58,6 +77,7 @@ function InventoryDashboard({ user }) {
   const [query, setQuery] = useState("");
   const [lowOnly, setLowOnly] = useState(false);
   const [uncountedOnly, setUncountedOnly] = useState(false);
+  const [selectedItems, setSelectedItems] = useState(new Set());
   const pams = useLatestPamsExport();
 
   const visibleItems = useMemo(() => {
@@ -77,12 +97,36 @@ function InventoryDashboard({ user }) {
     });
   }, [items, query, lowOnly, uncountedOnly]);
 
-  // Prints the given list (defaults to the filtered view) so the manager
-  // can narrow with search/filters and print small batches at the rack.
+  const hasSelection = selectedItems.size > 0;
+
+  function toggleSelection(id) {
+    setSelectedItems((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function clearSelection() {
+    setSelectedItems(new Set());
+  }
+
+  function selectAllVisible() {
+    setSelectedItems(new Set(visibleItems.map((it) => it.id)));
+  }
+
+  // Prints the given list (defaults to selected items or the filtered view)
+  // so the manager can pick a few items at the rack and tag them.
   async function handlePrintTags(list) {
-    const target = list || visibleItems;
+    let target = list;
+    if (!target) {
+      target = hasSelection
+        ? items.filter((it) => selectedItems.has(it.id))
+        : visibleItems;
+    }
     if (target.length === 0) {
-      alert("Nothing to print — adjust the search or filters.");
+      alert("Nothing to print — adjust the search, filters, or selection.");
       return;
     }
     // Guard against an accidental hundreds-of-pages print.
@@ -101,6 +145,7 @@ function InventoryDashboard({ user }) {
       await generateInventoryTagsPdf(
         target.map((it) => ({ id: it.id, itemName: it.itemName }))
       );
+      clearSelection();
     } catch (err) {
       console.error("Tag PDF generation failed:", err);
       alert(
@@ -160,10 +205,13 @@ function InventoryDashboard({ user }) {
       <header className="sticky top-0 z-20 bg-brand-darkest px-4 py-3 text-white shadow-lg sm:px-5 sm:py-4">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3">
-            <span className="text-2xl">📦</span>
             <h1 className="text-xl font-bold tracking-tight sm:text-2xl">
               Inventory
             </h1>
+            <div className="h-6 w-0.5 bg-white/20" aria-hidden="true" />
+            <span className="hidden text-sm font-medium text-white/60 sm:inline">
+              Stock Control
+            </span>
             {!loading && !error && items.length > 0 && (
               <span className="ml-2 hidden rounded-full bg-white/15 px-3 py-0.5 text-xs font-semibold sm:inline">
                 {items.length} item{items.length !== 1 ? 's' : ''}
@@ -173,118 +221,128 @@ function InventoryDashboard({ user }) {
 
           {/* Desktop: action row */}
           <div className="hidden items-center gap-2 md:flex">
-            <button
-              onClick={() => setScannerOpen(true)}
-              className="rounded-lg bg-brand-teal px-4 py-2 text-sm font-semibold text-white shadow-md shadow-brand-teal/25 transition hover:bg-brand-teal2 hover:shadow-lg active:scale-95"
-            >
+            <Button onClick={() => setScannerOpen(true)}>
               Scan Item
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setAddOpen(true)}
-              className="rounded-lg bg-brand-gold px-4 py-2 text-sm font-semibold text-brand-darkest shadow-md shadow-brand-gold/25 transition hover:bg-amber-400 hover:shadow-lg active:scale-95"
+              className="bg-accent text-accent-foreground hover:bg-accent/80"
             >
               + New Item
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setLocationsOpen(true)}
-              className="rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/20 active:scale-95"
+              variant="ghost"
+              className="bg-white/10 text-white/90 hover:bg-white/20"
             >
               Locations
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setTrackingOpen(true)}
-              className="rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/20 active:scale-95"
+              variant="ghost"
+              className="bg-white/10 text-white/90 hover:bg-white/20"
             >
               Tracking
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => handlePrintTags()}
               disabled={printing}
-              className="rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/20 active:scale-95 disabled:opacity-50"
+              variant="ghost"
+              className="bg-white/10 text-white/90 hover:bg-white/20"
             >
-              {printing ? '…' : `Print Tags (${visibleItems.length})`}
-            </button>
-            <button
+              {printing ? '…' : hasSelection ? `Print Selected (${selectedItems.size})` : `Print Tags (${visibleItems.length})`}
+            </Button>
+            <Button
               onClick={pams.download}
               disabled={pams.loading}
-              className="rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/20 active:scale-95 disabled:opacity-50"
+              variant="ghost"
+              className="bg-white/10 text-white/90 hover:bg-white/20"
               title={pams.latest ? `Latest: ${pams.latest.name}` : 'PAMS export file (.xls)'}
             >
               PAMS
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setHelpOpen(true)}
-              className="rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white/70 transition hover:bg-white/20 active:scale-95"
+              variant="ghost"
+              className="bg-white/10 text-white/70 hover:bg-white/20"
             >
               Help
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => signOut(auth)}
               title={user.email || 'Sign out'}
-              className="ml-2 rounded-lg bg-white/5 px-4 py-2 text-sm font-semibold text-white/50 transition hover:bg-white/15 hover:text-white/80 active:scale-95"
+              variant="ghost"
+              className="ml-2 bg-white/5 text-white/50 hover:bg-white/15 hover:text-white/80"
             >
               Sign Out
-            </button>
+            </Button>
           </div>
 
           {/* Hamburger: shown below md breakpoint */}
-          <button
+          <Button
             onClick={() => setMenuOpen((v) => !v)}
-            aria-label="More actions"
+            aria-label={menuOpen ? "Close menu" : "More actions"}
             aria-expanded={menuOpen}
-            className="rounded-lg bg-white/10 px-3 py-2.5 text-lg font-bold leading-none text-white active:bg-white/20 md:hidden"
+            variant="ghost"
+            className="bg-white/10 text-white hover:bg-white/20 md:hidden"
           >
-            {menuOpen ? '✕' : '☰'}
-          </button>
+            {menuOpen ? <X size={20} /> : <List size={20} />}
+          </Button>
         </div>
 
         {/* Mobile/tablet dropdown panel */}
         {menuOpen && (
           <div className="mx-auto mt-3 grid max-w-7xl gap-2 md:hidden">
-            <button
+            <Button
               onClick={() => { setMenuOpen(false); setAddOpen(true); }}
-              className="rounded-lg bg-brand-gold px-4 py-3 text-base font-semibold text-brand-darkest shadow-md active:bg-amber-500"
+              className="bg-accent text-accent-foreground hover:bg-accent/80"
             >
               + Add New Item
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => { setMenuOpen(false); setLocationsOpen(true); }}
-              className="rounded-lg bg-white/10 px-4 py-3 text-base font-semibold text-white active:bg-white/20"
+              variant="ghost"
+              className="bg-white/10 text-white hover:bg-white/20"
             >
               Locations
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => { setMenuOpen(false); setTrackingOpen(true); }}
-              className="rounded-lg bg-white/10 px-4 py-3 text-base font-semibold text-white active:bg-white/20"
+              variant="ghost"
+              className="bg-white/10 text-white hover:bg-white/20"
             >
               Tracking
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => { setMenuOpen(false); handlePrintTags(); }}
               disabled={printing}
-              className="rounded-lg bg-white/10 px-4 py-3 text-base font-semibold text-white active:bg-white/20 disabled:opacity-50"
+              variant="ghost"
+              className="bg-white/10 text-white hover:bg-white/20"
             >
-              {printing ? 'Generating…' : `Print Item Tags (${visibleItems.length})`}
-            </button>
-            <button
+              {printing ? 'Generating…' : hasSelection ? `Print Selected (${selectedItems.size})` : `Print Tags (${visibleItems.length})`}
+            </Button>
+            <Button
               onClick={() => { setMenuOpen(false); pams.download(); }}
               disabled={pams.loading}
-              className="rounded-lg bg-white/10 px-4 py-3 text-base font-semibold text-white active:bg-white/20 disabled:opacity-50"
+              variant="ghost"
+              className="bg-white/10 text-white hover:bg-white/20"
             >
               {pams.loading ? '…' : 'Download PAMS file'}
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => { setMenuOpen(false); setHelpOpen(true); }}
-              className="rounded-lg bg-white/10 px-4 py-3 text-base font-semibold text-white/70 active:bg-white/20"
+              variant="ghost"
+              className="bg-white/10 text-white/70 hover:bg-white/20"
             >
               Help
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => { setMenuOpen(false); signOut(auth); }}
-              className="rounded-lg bg-white/5 px-4 py-3 text-base font-semibold text-white/50 active:bg-white/15"
+              variant="ghost"
+              className="bg-white/5 text-white/50 hover:bg-white/15"
             >
               Sign Out
-            </button>
+            </Button>
           </div>
         )}
       </header>
@@ -294,21 +352,31 @@ function InventoryDashboard({ user }) {
         {!loading && !error && items.length > 0 && (
           <div className="mb-5 grid grid-cols-3 gap-3 sm:grid-cols-4">
             {[
-              { label: 'Total', value: items.length, color: 'from-brand-darkest to-brand-dark', icon: '📋' },
-              { label: 'In Stock', value: items.reduce((s, i) => s + (Number(i.inStock) || 0), 0), color: 'from-brand-teal to-brand-teal2', icon: '✅' },
-              { label: 'Low Stock', value: items.filter((i) => (Number(i.inStock) || 0) < (Number(i.lowThreshold) || 0)).length, color: 'from-brand-gold to-amber-500', icon: '⚠️' },
-              { label: 'On Order', value: items.reduce((s, i) => s + (Number(i.onOrder) || 0), 0), color: 'from-brand-dark to-brand-teal', icon: '🚚' },
-            ].map((stat) => (
-              <div
-                key={stat.label}
-                className={`rounded-xl bg-gradient-to-br ${stat.color} p-3 text-white shadow-md sm:p-4`}
-              >
-                <p className="text-xs font-semibold opacity-80 sm:text-sm">{stat.label}</p>
-                <p className="mt-0.5 text-2xl font-extrabold tabular-nums sm:text-3xl">
-                  {stat.value}
-                </p>
-              </div>
-            ))}
+              { label: 'Total', value: items.length, bg: 'bg-brand-darkest', icon: Clipboard },
+              { label: 'In Stock', value: items.reduce((s, i) => s + (Number(i.inStock) || 0), 0), bg: 'bg-brand-teal', icon: CheckCircle, primary: true },
+              { label: 'Low Stock', value: items.filter((i) => (Number(i.inStock) || 0) < (Number(i.lowThreshold) || 0)).length, bg: 'bg-brand-gold', icon: Warning },
+              { label: 'On Order', value: items.reduce((s, i) => s + (Number(i.onOrder) || 0), 0), bg: 'bg-brand-dark', icon: Truck },
+            ].map((stat) => {
+              const Icon = stat.icon;
+              return (
+                <Card
+                  key={stat.label}
+                  className={`${stat.bg} text-white! shadow-sm border-0 ${stat.primary ? 'sm:col-span-1' : ''}`}
+                >
+                  <CardContent className="p-3 sm:p-4">
+                    <div className="flex items-center gap-2">
+                      <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/10">
+                        <Icon size={16} className="text-white/90" aria-hidden="true" />
+                      </span>
+                      <p className="text-xs font-medium text-white/70 sm:text-sm">{stat.label}</p>
+                    </div>
+                    <p className={`mt-2 tabular-nums font-extrabold tracking-tight ${stat.primary ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'}`}>
+                      {stat.value}
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
 
@@ -316,59 +384,78 @@ function InventoryDashboard({ user }) {
         {!loading && !error && items.length > 0 && (
           <div className="mb-5 flex flex-wrap items-center gap-2.5">
             <div className="relative min-w-[200px] flex-1">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-brand-darkest/40">🔍</span>
-              <input
+              <MagnifyingGlass size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+              <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search by name or ID…"
-                className="w-full rounded-xl border-2 border-brand-surface bg-white py-2.5 pl-9 pr-4 text-base shadow-sm transition focus:border-brand-teal focus:outline-none focus:ring-2 focus:ring-brand-teal/20"
+                className="pl-9"
               />
             </div>
-            <button
+            <Button
               onClick={() => setLowOnly((v) => !v)}
-              className={`rounded-full border-2 px-4 py-2 text-sm font-semibold transition active:scale-95 ${
-                lowOnly
-                  ? 'border-brand-gold bg-brand-gold/10 text-brand-darkest shadow-sm'
-                  : 'border-brand-surface bg-white text-brand-darkest/60 hover:border-brand-darkest/20'
-              }`}
+              variant={lowOnly ? 'default' : 'outline'}
+              className={lowOnly ? 'bg-accent text-accent-foreground hover:bg-accent/80' : ''}
             >
-              ⚠️ Low stock
-            </button>
-            <button
+              <Warning size={16} className="mr-1.5" aria-hidden="true" />
+              Low stock
+            </Button>
+            <Button
               onClick={() => setUncountedOnly((v) => !v)}
-              className={`rounded-full border-2 px-4 py-2 text-sm font-semibold transition active:scale-95 ${
-                uncountedOnly
-                  ? 'border-brand-teal bg-brand-teal/10 text-brand-darkest shadow-sm'
-                  : 'border-brand-surface bg-white text-brand-darkest/60 hover:border-brand-darkest/20'
-              }`}
+              variant={uncountedOnly ? 'default' : 'outline'}
             >
-              0️⃣ Uncounted
-            </button>
+              <Circle size={16} className="mr-1.5" aria-hidden="true" />
+              Uncounted
+            </Button>
             {visibleItems.length !== items.length && (
               <span className="text-sm font-medium text-brand-darkest/50">
                 Showing {visibleItems.length} of {items.length}
               </span>
+            )}
+            {/* ── Select-all / clear for batch print ────────────── */}
+            {visibleItems.length > 0 && (
+              <div className="flex items-center gap-2 text-sm">
+                {hasSelection && (
+                  <span className="font-medium text-accent">
+                    {selectedItems.size} selected
+                  </span>
+                )}
+                <button
+                  onClick={selectAllVisible}
+                  className="font-medium text-brand-darkest/50 hover:text-brand-darkest/80"
+                >
+                  Select All
+                </button>
+                {hasSelection && (
+                  <button
+                    onClick={clearSelection}
+                    className="font-medium text-brand-darkest/50 hover:text-brand-darkest/80"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
             )}
           </div>
         )}
 
         {loading && (
           <div className="flex flex-col items-center justify-center py-24 text-brand-darkest/40">
-            <span className="animate-spin text-4xl">⏳</span>
+            <Spinner className="animate-spin" size={36} aria-label="Loading" role="status" />
             <p className="mt-3 text-base font-medium">Loading inventory…</p>
           </div>
         )}
 
         {error && (
           <div className="flex flex-col items-center justify-center py-24 text-brand-gold">
-            <span className="text-4xl">⚠️</span>
+            <Warning size={36} className="text-brand-gold" aria-hidden="true" />
             <p className="mt-3 text-base font-medium">{error}</p>
           </div>
         )}
 
         {!loading && !error && items.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 text-brand-darkest/40">
-            <span className="text-5xl">📦</span>
+            <Package size={48} className="text-brand-darkest/30" aria-hidden="true" />
             <p className="mt-4 text-lg font-semibold">No items yet</p>
             <p className="mt-1 text-sm">Tap Scan or Add New Item to get started.</p>
           </div>
@@ -376,7 +463,7 @@ function InventoryDashboard({ user }) {
 
         {!loading && !error && items.length > 0 && visibleItems.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 text-brand-darkest/40">
-            <span className="text-4xl">🔍</span>
+            <MagnifyingGlass size={36} className="text-brand-darkest/30" aria-hidden="true" />
             <p className="mt-3 text-base font-medium">No items match</p>
             <p className="mt-1 text-sm">Try adjusting your search or filters.</p>
           </div>
@@ -384,13 +471,14 @@ function InventoryDashboard({ user }) {
 
         {/* ── Mobile floating scan button ────────────────────────────── */}
         {!scannerOpen && (
-          <button
+          <Button
             onClick={() => setScannerOpen(true)}
-            className="fixed bottom-6 right-6 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-brand-teal text-white shadow-lg shadow-brand-teal/30 transition hover:bg-brand-teal2 hover:shadow-xl active:scale-90 sm:hidden"
             aria-label="Scan item"
+            size="icon"
+            className="fixed bottom-6 right-6 z-30 h-14 w-14 rounded-full shadow-lg sm:hidden"
           >
-            <span className="text-2xl">📷</span>
-          </button>
+            <Camera size={24} />
+          </Button>
         )}
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -406,9 +494,9 @@ function InventoryDashboard({ user }) {
                 : 'from-brand-teal2 to-brand-teal';
 
             return (
-              <div
+              <Card
                 key={item.id}
-                className="group overflow-hidden rounded-2xl bg-white shadow-md ring-1 ring-brand-surface transition hover:shadow-xl hover:-translate-y-1 active:scale-[0.98]"
+                className="group overflow-hidden hover:shadow-lg hover:-translate-y-0.5"
               >
                 {/* Accent bar at top */}
                 <div className={`h-1.5 bg-gradient-to-r ${statusColor}`} />
@@ -421,55 +509,67 @@ function InventoryDashboard({ user }) {
                       e.currentTarget.onerror = null;
                       e.currentTarget.src = FALLBACK_IMG;
                     }}
-                    className="h-40 w-full bg-brand-surface object-cover sm:h-44"
+                    className="h-40 w-full bg-muted object-cover sm:h-44"
                   />
                   {isLow && (
-                    <span className="absolute left-3 top-3 rounded-full bg-brand-gold px-2.5 py-0.5 text-xs font-bold text-brand-darkest shadow-md">
+                    <Badge className="absolute left-3 top-3 bg-accent text-accent-foreground shadow-sm">
                       LOW
-                    </span>
+                    </Badge>
                   )}
                   {item.tracked && (
-                    <span className="absolute right-3 top-3 rounded-full bg-brand-darkest/80 px-2.5 py-0.5 text-xs font-bold text-white backdrop-blur-sm">
+                    <Badge variant="secondary" className="absolute right-3 top-3 backdrop-blur-sm">
                       Tracked
-                    </span>
+                    </Badge>
                   )}
+                  {/* ── Multi-select checkbox ───────────────── */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); toggleSelection(item.id); }}
+                    aria-label={selectedItems.has(item.id) ? `Deselect ${item.itemName || item.id}` : `Select ${item.itemName || item.id}`}
+                    className="absolute left-2.5 top-2.5 z-10 flex h-6 w-6 items-center justify-center rounded-md bg-white/80 shadow-sm backdrop-blur-sm hover:bg-white"
+                  >
+                    {selectedItems.has(item.id) ? (
+                      <CheckSquare size={16} weight="fill" className="text-accent" />
+                    ) : (
+                      <Square size={16} className="text-brand-darkest/50" />
+                    )}
+                  </button>
                 </div>
 
-                <div className="p-4">
-                  <h2 className="truncate text-base font-bold text-brand-darkest sm:text-lg">
+                <CardContent className="p-3 sm:p-4">
+                  <h2 className="truncate text-base font-bold text-foreground sm:text-lg">
                     {item.itemName || item.id}
                   </h2>
-                  <p className="truncate text-xs font-medium text-brand-darkest/40">
+                  <p className="truncate text-xs font-medium text-muted-foreground">
                     {item.id}
                   </p>
 
                   <div className="mt-3 flex items-end justify-between">
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-brand-darkest/40">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                         In Stock
                       </p>
                       <p
                         className={`text-3xl font-extrabold tabular-nums ${
-                          isLow ? 'text-brand-gold' : 'text-brand-darkest'
+                          isLow ? 'text-accent' : 'text-foreground'
                         }`}
                       >
                         {inStock}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-brand-darkest/40">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                         On Order
                       </p>
-                      <p className="text-xl font-bold tabular-nums text-brand-teal">
+                      <p className="text-xl font-bold tabular-nums text-primary">
                         {onOrder}
                       </p>
                     </div>
                     {item.tracked && (
                       <div className="text-right">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-brand-darkest/40">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                           Out
                         </p>
-                        <p className="text-xl font-bold tabular-nums text-brand-darkest/70">
+                        <p className="text-xl font-bold tabular-nums text-muted-foreground">
                           {Number(item.usingQty) || 0}
                         </p>
                       </div>
@@ -477,40 +577,46 @@ function InventoryDashboard({ user }) {
                   </div>
 
                   {lowThreshold > 0 && (
-                    <p className="mt-2 text-xs text-brand-darkest/40">
+                    <p className="mt-2 text-xs text-muted-foreground">
                       Threshold: <span className="font-semibold">{lowThreshold}</span>
                     </p>
                   )}
 
                   {item.syncToPams === true && item.tracked !== true && (
-                    <p className="mt-2 inline-block rounded-full bg-brand-teal/10 px-2.5 py-0.5 text-xs font-semibold text-brand-teal">
+                    <Badge variant="outline" className="mt-2 bg-primary/10 text-primary border-primary/20">
                       PAMS Reorder
-                    </p>
+                    </Badge>
                   )}
 
                   <div className="mt-3 flex gap-2">
-                    <button
+                    <Button
                       onClick={() => setUnitsItem(item)}
-                      className="flex-1 rounded-lg bg-brand-surface py-2 text-sm font-semibold text-brand-darkest transition hover:bg-brand-light active:scale-95"
+                      variant="secondary"
+                      size="sm"
+                      className="flex-1"
                     >
                       + Units
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={() => printItemTags(item)}
                       disabled={printing}
-                      className="flex-1 rounded-lg bg-brand-surface py-2 text-sm font-semibold text-brand-darkest transition hover:bg-brand-light active:scale-95 disabled:opacity-50"
+                      variant="secondary"
+                      size="sm"
+                      className="flex-1"
                     >
                       {item.tracked ? 'Unit Tags' : 'Item Tag'}
-                    </button>
+                    </Button>
                   </div>
-                  <button
+                  <Button
                     onClick={() => setManageItem(item)}
-                    className="mt-2 w-full rounded-lg py-1.5 text-xs font-medium text-brand-darkest/40 transition hover:bg-brand-surface hover:text-brand-darkest active:scale-95"
+                    variant="ghost"
+                    size="sm"
+                    className="mt-2 w-full text-muted-foreground hover:text-foreground"
                   >
-                    Manage →
-                  </button>
-                </div>
-              </div>
+                    Manage &rarr;
+                  </Button>
+                </CardContent>
+              </Card>
             );
           })}
         </div>

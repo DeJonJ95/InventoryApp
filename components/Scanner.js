@@ -3,11 +3,12 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Html5Qrcode } from "html5-qrcode";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "../lib/firebase";
-import { imgUrl, FALLBACK_IMG } from "../lib/items";
-import { checkOutAsset, checkInAsset } from "../lib/assets";
-import { listActiveLocations } from "../lib/locations";
-import { selectAllProps } from "../lib/ui";
+import { db } from "@/lib/firebase";
+import { imgUrl, FALLBACK_IMG } from "@/lib/items";
+import { checkOutAsset, checkInAsset } from "@/lib/assets";
+import { listActiveLocations } from "@/lib/locations";
+import { selectAllProps } from "@/lib/ui";
+import { Button } from "@/components/ui/button";
 
 const READER_ID = "qr-reader-region";
 
@@ -207,12 +208,13 @@ export default function Scanner({ onClose }) {
       {/* Top bar */}
       <div className="flex items-center justify-between px-4 py-3 text-white">
         <span className="text-lg font-semibold">Scan Item</span>
-        <button
+        <Button
           onClick={onClose}
-          className="rounded-md bg-white/15 px-4 py-2 text-base font-medium active:bg-white/30"
+          variant="ghost"
+          className="bg-white/15 text-white hover:bg-white/30"
         >
           Close
-        </button>
+        </Button>
       </div>
 
       {/* Camera viewport */}
@@ -222,12 +224,12 @@ export default function Scanner({ onClose }) {
         {cameraError && (
           <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 rounded-lg bg-white p-5 text-center">
             <p className="text-brand-darkest">{cameraError}</p>
-            <button
+            <Button
               onClick={onClose}
-              className="mt-4 rounded-md bg-brand-darkest px-5 py-2 text-white"
+              className="mt-4"
             >
               Go Back
-            </button>
+            </Button>
           </div>
         )}
 
@@ -247,12 +249,12 @@ export default function Scanner({ onClose }) {
           <p className="mt-1 text-center text-sm text-brand-darkest/50 break-all">
             Code: {notFoundId}
           </p>
-          <button
+          <Button
             onClick={resumeScanning}
-            className="mt-5 w-full rounded-lg bg-brand-darkest py-3 text-base font-semibold text-white active:bg-brand-dark"
+            className="mt-5 w-full"
           >
             Scan Again
-          </button>
+          </Button>
         </SubModal>
       )}
 
@@ -290,20 +292,21 @@ export default function Scanner({ onClose }) {
                 </p>
               )}
               <div className="mt-5 flex gap-3">
-                <button
+                <Button
                   onClick={resumeScanning}
                   disabled={assetBusy}
-                  className="flex-1 rounded-lg bg-brand-surface py-3 text-base font-semibold text-brand-darkest active:bg-brand-surface/80 disabled:opacity-50"
+                  variant="outline"
+                  className="flex-1"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={doCheckIn}
                   disabled={assetBusy}
-                  className="flex-1 rounded-lg bg-brand-teal py-3 text-base font-semibold text-white active:bg-brand-teal2 disabled:opacity-50"
+                  className="flex-1"
                 >
                   {assetBusy ? "Working…" : "Check In"}
-                </button>
+                </Button>
               </div>
             </>
           ) : (
@@ -343,20 +346,21 @@ export default function Scanner({ onClose }) {
                 </p>
               )}
               <div className="mt-5 flex gap-3">
-                <button
+                <Button
                   onClick={resumeScanning}
                   disabled={assetBusy}
-                  className="flex-1 rounded-lg bg-brand-surface py-3 text-base font-semibold text-brand-darkest active:bg-brand-surface/80 disabled:opacity-50"
+                  variant="outline"
+                  className="flex-1"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={doCheckOut}
                   disabled={assetBusy || !selectedLocation}
-                  className="flex-1 rounded-lg bg-brand-teal py-3 text-base font-semibold text-white active:bg-brand-teal2 disabled:opacity-50"
+                  className="flex-1"
                 >
                   {assetBusy ? "Working…" : "Check Out"}
-                </button>
+                </Button>
               </div>
             </>
           )}
@@ -468,20 +472,21 @@ export default function Scanner({ onClose }) {
           </div>
 
           <div className="mt-6 flex gap-3">
-            <button
+            <Button
               onClick={resumeScanning}
               disabled={saving}
-              className="flex-1 rounded-lg bg-brand-surface py-3 text-base font-semibold text-brand-darkest active:bg-brand-surface/80 disabled:opacity-50"
+              variant="outline"
+              className="flex-1"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={saveUpdate}
               disabled={saving}
-              className="flex-1 rounded-lg bg-brand-teal py-3 text-base font-semibold text-white active:bg-brand-teal2 disabled:opacity-50"
+              className="flex-1"
             >
               {saving ? "Saving…" : "Save Update"}
-            </button>
+            </Button>
           </div>
         </SubModal>
       )}
@@ -492,7 +497,7 @@ export default function Scanner({ onClose }) {
 function SubModal({ children }) {
   return (
     <div className="fixed inset-0 z-10 flex items-center justify-center bg-black/60 p-4">
-      <div className="w-full max-w-sm max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6">
+      <div className="w-full max-w-sm max-h-[90vh] overflow-y-auto rounded-xl bg-popover p-6 text-sm text-popover-foreground shadow-lg">
         {children}
       </div>
     </div>

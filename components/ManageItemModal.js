@@ -1,26 +1,28 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { doc, updateDoc } from "firebase/firestore";
-import { db } from "../lib/firebase";
-import { removeUnusedUnits, deleteItemCompletely } from "../lib/assets";
-import { uploadItemPhoto } from "../lib/photo";
+import { db } from "@/lib/firebase";
+import { removeUnusedUnits, deleteItemCompletely } from "@/lib/assets";
+import { uploadItemPhoto } from "@/lib/photo";
 import {
   imgUrl,
   FALLBACK_IMG,
   PAMS_STORAGES,
   STORAGE_CODES,
   DEFAULT_STORAGE,
-} from "../lib/items";
-import { selectAllProps } from "../lib/ui";
+} from "@/lib/items";
+import { selectAllProps } from "@/lib/ui";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 
-/**
- * Correct/clean up an item: remove spare over-created units, or delete
- * the item entirely when it's no longer carried.
- *
- * @param {object} item  the item ({id, itemName, tracked, inStock, usingQty})
- * @param {() => void} onClose
- */
 export default function ManageItemModal({ item, onClose }) {
   const name = item.itemName || item.id;
   const inStock = Number(item.inStock) || 0;
@@ -45,7 +47,7 @@ export default function ManageItemModal({ item, onClose }) {
     try {
       await updateDoc(doc(db, "items", item.id), { syncToPams: next });
     } catch (err) {
-      setSyncPams(!next); // revert on failure
+      setSyncPams(!next);
       setError(err.message || "Could not update PAMS setting.");
     }
   }
@@ -64,7 +66,7 @@ export default function ManageItemModal({ item, onClose }) {
 
   async function handlePhoto(e) {
     const file = e.target.files?.[0];
-    e.target.value = ""; // allow re-selecting the same file later
+    e.target.value = "";
     if (!file) return;
     setError("");
     setPhotoMsg("");
@@ -130,32 +132,27 @@ export default function ManageItemModal({ item, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="w-full max-w-sm max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6">
-        <div className="sticky top-0 z-10 flex items-center justify-between bg-white pb-3 -mt-1 pt-1">
-          <h2 className="text-xl font-bold text-brand-darkest">Manage Item</h2>
-          <button
-            onClick={onClose}
-            className="rounded-md bg-brand-surface px-3 py-1.5 text-sm font-semibold text-brand-darkest/80 active:bg-brand-surface"
-          >
-            Close
-          </button>
-        </div>
-        <p className="mt-1 text-sm text-brand-darkest/50">
-          <span className="font-semibold">{name}</span> · {inStock} in stock
-          {item.tracked ? ` · ${out} out` : ""}
-        </p>
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-sm max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Manage Item</DialogTitle>
+          <p className="text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground">{name}</span> · {inStock} in stock
+            {item.tracked ? ` · ${out} out` : ""}
+          </p>
+        </DialogHeader>
 
-        <div className="mt-5 rounded-xl border border-brand-surface p-4">
+        {/* PAMS / Storage */}
+        <div className="rounded-xl border p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-semibold text-brand-darkest">
+              <p className="text-sm font-semibold text-foreground">
                 Reorder via PAMS
               </p>
-              <p className="text-xs text-brand-darkest/50">
+              <p className="text-xs text-muted-foreground">
                 {item.tracked
-                  ? "Unavailable — tracked equipment isn't a PAMS consumable. PAMS rejects equipment in the supplies import."
-                  : "Include this consumable in the nightly PAMS file. Only for vendor-reordered supplies, never equipment. The item must be in PAMS's Consumable (non-tracking) category, or PAMS rejects it — re-categorize it in PAMS first if needed."}
+                  ? "Unavailable — tracked equipment isn't a PAMS consumable."
+                  : "Include this consumable in the nightly PAMS file."}
               </p>
             </div>
             <button
@@ -164,7 +161,7 @@ export default function ManageItemModal({ item, onClose }) {
               aria-checked={syncPams && !item.tracked}
               disabled={item.tracked}
               className={`relative h-7 w-12 shrink-0 rounded-full transition disabled:opacity-40 ${
-                syncPams && !item.tracked ? "bg-brand-teal" : "bg-brand-surface/80"
+                syncPams && !item.tracked ? "bg-primary" : "bg-muted"
               }`}
             >
               <span
@@ -177,15 +174,15 @@ export default function ManageItemModal({ item, onClose }) {
 
           <div className="mt-4 flex items-center justify-between border-t pt-4">
             <div>
-              <p className="text-sm font-semibold text-brand-darkest">Storage</p>
-              <p className="text-xs text-brand-darkest/50">
-                Where it's stored (sent to PAMS with the quantity).
+              <p className="text-sm font-semibold text-foreground">Storage</p>
+              <p className="text-xs text-muted-foreground">
+                Where it&apos;s stored (sent to PAMS with the quantity).
               </p>
             </div>
             <select
               value={storageLoc}
               onChange={(e) => changeStorage(e.target.value)}
-              className="rounded-lg border border-brand-surface bg-white px-3 py-2 text-base focus:border-brand-teal focus:outline-none"
+              className="rounded-lg border border-input bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
             >
               {PAMS_STORAGES.map((s) => (
                 <option key={s.code} value={s.code}>
@@ -196,9 +193,10 @@ export default function ManageItemModal({ item, onClose }) {
           </div>
         </div>
 
-        <div className="mt-5 rounded-xl border border-brand-surface p-4">
-          <p className="text-sm font-semibold text-brand-darkest">Photo</p>
-          <p className="text-xs text-brand-darkest/50">
+        {/* Photo */}
+        <div className="rounded-xl border p-4">
+          <p className="text-sm font-semibold text-foreground">Photo</p>
+          <p className="text-xs text-muted-foreground">
             Take or choose a picture of this item.
           </p>
           <div className="mt-3 flex items-center gap-3">
@@ -213,8 +211,8 @@ export default function ManageItemModal({ item, onClose }) {
             />
             <label className="flex-1">
               <span
-                className={`block cursor-pointer rounded-lg py-2.5 text-center text-base font-semibold text-white ${
-                  busy ? "bg-brand-teal/40" : "bg-brand-teal active:bg-brand-teal2"
+                className={`block cursor-pointer rounded-lg py-2 text-center text-sm font-semibold text-primary-foreground ${
+                  busy ? "bg-primary/60" : "bg-primary hover:bg-primary/80"
                 }`}
               >
                 {busy ? "Working…" : "Take / choose photo"}
@@ -230,21 +228,22 @@ export default function ManageItemModal({ item, onClose }) {
             </label>
           </div>
           {photoMsg && (
-            <p className="mt-2 text-sm font-medium text-brand-teal">
+            <p className="mt-2 text-sm font-medium text-primary">
               {photoMsg}
             </p>
           )}
         </div>
 
-        <div className="mt-5 rounded-xl border border-brand-surface p-4">
-          <p className="text-sm font-semibold text-brand-darkest">
+        {/* Threshold */}
+        <div className="rounded-xl border p-4">
+          <p className="text-sm font-semibold text-foreground">
             Low threshold
           </p>
-          <p className="text-xs text-brand-darkest/50">
+          <p className="text-xs text-muted-foreground">
             Alert/reorder when In Stock drops below this.
           </p>
           <div className="mt-3 flex gap-2">
-            <input
+            <Input
               type="number"
               inputMode="numeric"
               min={0}
@@ -254,34 +253,34 @@ export default function ManageItemModal({ item, onClose }) {
                 setThreshold(Math.max(0, Math.floor(+e.target.value || 0)))
               }
               {...selectAllProps}
-              className="w-24 rounded-lg border border-brand-surface px-3 py-2.5 text-lg tabular-nums disabled:opacity-50"
+              className="w-24 text-lg tabular-nums"
             />
-            <button
+            <Button
               onClick={handleSaveThreshold}
               disabled={busy}
-              className="flex-1 rounded-lg bg-brand-teal py-2.5 text-base font-semibold text-white active:bg-brand-teal2 disabled:opacity-50"
+              className="flex-1"
             >
-              {busy ? "Working…" : "Save threshold"}
-            </button>
+              {busy ? "Working…" : "Save"}
+            </Button>
           </div>
           {thresholdMsg && (
-            <p className="mt-2 text-sm font-medium text-brand-teal">
+            <p className="mt-2 text-sm font-medium text-primary">
               {thresholdMsg}
             </p>
           )}
         </div>
 
+        {/* Remove spare units */}
         {item.tracked && (
-          <div className="mt-5 rounded-xl border border-brand-surface p-4">
-            <p className="text-sm font-semibold text-brand-darkest">
+          <div className="rounded-xl border p-4">
+            <p className="text-sm font-semibold text-foreground">
               Remove spare units
             </p>
-            <p className="text-xs text-brand-darkest/50">
-              Fixes an over-create. Only removes in-warehouse units — never
-              ones checked out.
+            <p className="text-xs text-muted-foreground">
+              Fixes an over-create. Only removes in-warehouse units.
             </p>
             <div className="mt-3 flex gap-2">
-              <input
+              <Input
                 type="number"
                 inputMode="numeric"
                 min={1}
@@ -291,50 +290,45 @@ export default function ManageItemModal({ item, onClose }) {
                   setRemoveN(Math.max(1, Math.floor(+e.target.value || 1)))
                 }
                 {...selectAllProps}
-                className="w-24 rounded-lg border border-brand-surface px-3 py-2.5 text-lg tabular-nums disabled:opacity-50"
+                className="w-24 text-lg tabular-nums"
               />
-              <button
+              <Button
                 onClick={handleRemove}
                 disabled={busy}
-                className="flex-1 rounded-lg bg-brand-darkest py-2.5 text-base font-semibold text-white active:bg-brand-dark disabled:opacity-50"
+                variant="secondary"
+                className="flex-1"
               >
                 {busy ? "Working…" : "Remove"}
-              </button>
+              </Button>
             </div>
             {msg && (
-              <p className="mt-2 text-sm font-medium text-brand-teal">{msg}</p>
+              <p className="mt-2 text-sm font-medium text-primary">{msg}</p>
             )}
           </div>
         )}
 
-        <div className="mt-5 rounded-xl border border-brand-gold/30 bg-brand-gold/10 p-4">
-          <p className="text-sm font-semibold text-brand-darkest">Danger zone</p>
-          <p className="text-xs text-brand-darkest">
-            Deletes the item and all its units. Blocked if any unit is checked
-            out. Does not remove it from PAMS.
+        {/* Danger zone */}
+        <div className="rounded-xl border border-accent/30 bg-accent/10 p-4">
+          <p className="text-sm font-semibold text-foreground">Danger zone</p>
+          <p className="text-xs text-foreground">
+            Deletes the item and all its units. Blocked if any unit is checked out.
           </p>
-          <button
+          <Button
             onClick={handleDelete}
             disabled={busy}
-            className="mt-3 w-full rounded-lg bg-brand-gold py-2.5 text-base font-semibold text-white active:bg-brand-gold disabled:opacity-50"
+            variant="destructive"
+            className="mt-3 w-full"
           >
             {busy ? "Working…" : "Delete this item"}
-          </button>
+          </Button>
         </div>
 
         {error && (
-          <p className="mt-4 rounded-lg bg-brand-gold/10 px-3 py-2 text-sm font-medium text-brand-darkest">
+          <div className="rounded-lg bg-accent/10 px-3 py-2 text-sm font-medium text-foreground">
             {error}
-          </p>
+          </div>
         )}
-
-        <button
-          onClick={onClose}
-          className="mt-5 w-full rounded-lg bg-brand-surface py-2.5 text-base font-semibold text-brand-darkest/80 active:bg-brand-surface sm:hidden"
-        >
-          Close
-        </button>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

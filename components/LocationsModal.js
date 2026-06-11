@@ -1,13 +1,21 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import {
   useLocations,
   addLocation,
   setLocationActive,
-} from "../lib/locations";
+} from "@/lib/locations";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
-/** Manage the list of checkout locations (schools/sites). */
 export default function LocationsModal({ onClose }) {
   const locations = useLocations();
   const [name, setName] = useState("");
@@ -29,45 +37,34 @@ export default function LocationsModal({ onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="flex max-h-[85vh] w-full max-w-md flex-col rounded-2xl bg-white p-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-brand-darkest">Locations</h2>
-          <button
-            onClick={onClose}
-            className="rounded-md bg-brand-surface px-3 py-1.5 text-sm font-semibold text-brand-darkest/80 active:bg-brand-surface"
-          >
-            Close
-          </button>
-        </div>
-        <p className="mt-1 text-sm text-brand-darkest/50">
-          Sites units can be checked out to. Deactivate instead of deleting to
-          keep history intact.
-        </p>
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Locations</DialogTitle>
+          <DialogDescription>
+            Sites units can be checked out to. Deactivate instead of deleting to
+            keep history intact.
+          </DialogDescription>
+        </DialogHeader>
 
         <form onSubmit={handleAdd} className="mt-4 flex gap-2">
-          <input
+          <Input
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="New location name"
             disabled={busy}
-            className="flex-1 rounded-lg border border-brand-surface px-3 py-2.5 text-base focus:border-brand-teal focus:outline-none disabled:opacity-50"
           />
-          <button
-            type="submit"
-            disabled={busy}
-            className="rounded-lg bg-brand-teal px-4 py-2.5 text-base font-semibold text-white active:bg-brand-teal2 disabled:opacity-50"
-          >
+          <Button type="submit" disabled={busy}>
             Add
-          </button>
+          </Button>
         </form>
         {error && (
-          <p className="mt-2 text-sm font-medium text-brand-darkest">{error}</p>
+          <p className="mt-2 text-sm font-medium text-foreground">{error}</p>
         )}
 
         <div className="mt-4 flex-1 overflow-y-auto">
           {locations.length === 0 && (
-            <p className="py-8 text-center text-sm text-brand-darkest/40">
+            <p className="py-8 text-center text-sm text-muted-foreground">
               No locations yet.
             </p>
           )}
@@ -79,22 +76,23 @@ export default function LocationsModal({ onClose }) {
               <span
                 className={`text-base ${
                   loc.active
-                    ? "text-brand-darkest"
-                    : "text-brand-darkest/40 line-through"
+                    ? "text-foreground"
+                    : "text-muted-foreground line-through"
                 }`}
               >
                 {loc.name}
               </span>
-              <button
+              <Button
                 onClick={() => setLocationActive(loc.id, !loc.active)}
-                className="rounded-md border border-brand-surface px-3 py-1.5 text-sm font-semibold text-brand-darkest/80 active:bg-brand-surface"
+                variant="outline"
+                size="sm"
               >
                 {loc.active ? "Deactivate" : "Reactivate"}
-              </button>
+              </Button>
             </div>
           ))}
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

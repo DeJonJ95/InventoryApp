@@ -1,34 +1,35 @@
-﻿"use client";
+"use client";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 function Section({ title, children }) {
   return (
     <div className="border-t py-4 first:border-t-0 first:pt-0">
-      <h3 className="text-base font-bold text-brand-darkest">{title}</h3>
-      <div className="mt-1 space-y-1 text-sm text-brand-darkest/70">{children}</div>
+      <h3 className="text-base font-bold text-foreground">{title}</h3>
+      <div className="mt-1 space-y-1 text-sm text-muted-foreground">{children}</div>
     </div>
   );
 }
 
 export default function HelpModal({ onClose }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="flex max-h-[90vh] w-full max-w-2xl flex-col rounded-2xl bg-white p-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-brand-darkest">Help &amp; Guide</h2>
-          <button
-            onClick={onClose}
-            className="rounded-md bg-brand-surface px-3 py-1.5 text-sm font-semibold text-brand-darkest/80 active:bg-brand-surface"
-          >
-            Close
-          </button>
-        </div>
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Help &amp; Guide</DialogTitle>
+        </DialogHeader>
 
-        <div className="mt-3 flex-1 overflow-y-auto pr-1">
+        <div className="mt-2">
           <Section title="What this app is for">
             <p>
               A simple way to track inventory: how much of each item you have,
               get alerted when something runs low, scan QR tags with your
-              phone, and (for equipment) track what's checked out and where.
+              phone, and (for equipment) track what&apos;s checked out and where.
             </p>
           </Section>
 
@@ -49,7 +50,7 @@ export default function HelpModal({ onClose }) {
             </p>
           </Section>
 
-          <Section title="Adding items & tags">
+          <Section title="Adding items &amp; tags">
             <p>
               <b>Add New Item</b> (top bar) — enter Item ID, name, threshold,
               unit, storage. In Stock starts at 0; you count it in by scanning.
@@ -77,14 +78,14 @@ export default function HelpModal({ onClose }) {
             </p>
           </Section>
 
-          <Section title="Locations & Tracking">
+          <Section title="Locations &amp; Tracking">
             <p>
               <b>Locations</b> — manage the list of sites equipment can be
               checked out to (deactivate old ones; history is kept).
             </p>
             <p>
-              <b>Tracking</b> — see what's currently out, grouped by location,
-              and look up any unit's full in/out history by its tag ID.
+              <b>Tracking</b> — see what&apos;s currently out, grouped by location,
+              and look up any unit&apos;s full in/out history by its tag ID.
             </p>
           </Section>
 
@@ -106,12 +107,12 @@ export default function HelpModal({ onClose }) {
               Every night the app builds a PAMS file of those items.{" "}
               <b>Download PAMS file</b> (top bar) and import it in PAMS:
               Category = <b>Consumable</b>, check{" "}
-              <i>"update the selected columns"</i>, select{" "}
+              <i>&quot;update the selected columns&quot;</i>, select{" "}
               <b>BasicQuantity\Storage\Section\Shelf</b>, leave{" "}
-              <i>"clear stock"</i> unchecked.
+              <i>&quot;clear stock&quot;</i> unchecked.
             </p>
             <p>
-              <b>Important:</b> the item must be in PAMS's <b>Consumable</b>{" "}
+              <b>Important:</b> the item must be in PAMS&apos;s <b>Consumable</b>{" "}
               (non-tracking) category. Equipment-category items are rejected by
               PAMS — re-categorize them in PAMS first. Use{" "}
               <b>Export Error Data</b> after an import as your PAMS cleanup
@@ -119,7 +120,7 @@ export default function HelpModal({ onClose }) {
             </p>
           </Section>
 
-          <Section title="Managing & removing">
+          <Section title="Managing &amp; removing">
             <p>
               <b>Manage</b> (on a card) — set threshold, add a photo, change
               storage, toggle Reorder via PAMS, remove over-created spare
@@ -132,11 +133,11 @@ export default function HelpModal({ onClose }) {
             <p>
               Use the search box and the <b>Low stock only</b> /{" "}
               <b>Uncounted (0) only</b> filters to work through the catalog
-              quickly. On phones, the <b>☰</b> menu holds the extra actions.
+              quickly. On phones, the <b>menu</b> button holds the extra actions.
             </p>
           </Section>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

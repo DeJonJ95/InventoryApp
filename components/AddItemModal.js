@@ -1,17 +1,22 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { db } from "../lib/firebase";
-import { PAMS_STORAGES, DEFAULT_STORAGE } from "../lib/items";
-import { selectAllProps } from "../lib/ui";
+import { db } from "@/lib/firebase";
+import { PAMS_STORAGES, DEFAULT_STORAGE } from "@/lib/items";
+import { selectAllProps } from "@/lib/ui";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
-/**
- * Create a new item profile. Doc ID = Item ID = PAMS BarCode.
- * In Stock starts at 0 (the manager counts it in later via the scanner).
- *
- * @param {() => void} onClose  Close the modal.
- */
 export default function AddItemModal({ onClose }) {
   const [itemId, setItemId] = useState("");
   const [itemName, setItemName] = useState("");
@@ -53,9 +58,9 @@ export default function AddItemModal({ onClose }) {
         description: "",
         largeUnit: "",
         largeUnitConversionRatio: 0,
-        syncToPams: true, // new items are usually reorderable consumables
+        syncToPams: true,
       });
-      onClose(); // real-time grid listener picks up the new item automatically
+      onClose();
     } catch (err) {
       console.error("Failed to create item:", err);
       setError("Could not save. Check your connection and try again.");
@@ -65,111 +70,104 @@ export default function AddItemModal({ onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6"
-      >
-        <h2 className="text-xl font-bold text-brand-darkest">Add New Item</h2>
-        <p className="mt-1 text-sm text-brand-darkest/50">
-          In Stock starts at 0 — scan and count it in afterward.
-        </p>
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-md">
+        <form onSubmit={handleSubmit}>
+          <DialogHeader>
+            <DialogTitle>Add New Item</DialogTitle>
+            <DialogDescription>
+              In Stock starts at 0 — scan and count it in afterward.
+            </DialogDescription>
+          </DialogHeader>
 
-        <label className="mt-5 block">
-          <span className="text-sm font-medium text-brand-darkest/80">
-            Item ID <span className="text-brand-darkest">*</span>
-          </span>
-          <input
-            value={itemId}
-            onChange={(e) => setItemId(e.target.value)}
-            disabled={saving}
-            autoFocus
-            className="mt-1 w-full rounded-lg border border-brand-surface px-3 py-3 text-base focus:border-brand-teal focus:outline-none disabled:opacity-50"
-          />
-          <span className="mt-1 block text-xs text-brand-darkest/40">
-            Becomes the QR code / PAMS BarCode. Cannot be changed later.
-          </span>
-        </label>
+          <div className="mt-5 grid gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="itemId">
+                Item ID <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="itemId"
+                value={itemId}
+                onChange={(e) => setItemId(e.target.value)}
+                disabled={saving}
+                autoFocus
+              />
+              <p className="text-xs text-muted-foreground">
+                Becomes the QR code / PAMS BarCode. Cannot be changed later.
+              </p>
+            </div>
 
-        <label className="mt-4 block">
-          <span className="text-sm font-medium text-brand-darkest/80">
-            Item Name <span className="text-brand-darkest">*</span>
-          </span>
-          <input
-            value={itemName}
-            onChange={(e) => setItemName(e.target.value)}
-            disabled={saving}
-            className="mt-1 w-full rounded-lg border border-brand-surface px-3 py-3 text-base focus:border-brand-teal focus:outline-none disabled:opacity-50"
-          />
-        </label>
+            <div className="grid gap-2">
+              <Label htmlFor="itemName">
+                Item Name <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="itemName"
+                value={itemName}
+                onChange={(e) => setItemName(e.target.value)}
+                disabled={saving}
+              />
+            </div>
 
-        <div className="mt-4 grid grid-cols-2 gap-3">
-          <label className="block">
-            <span className="text-sm font-medium text-brand-darkest/80">
-              Low Threshold
-            </span>
-            <input
-              type="number"
-              inputMode="numeric"
-              min={0}
-              value={lowThreshold}
-              onChange={(e) => setLowThreshold(e.target.value)}
-              {...selectAllProps}
-              disabled={saving}
-              className="mt-1 w-full rounded-lg border border-brand-surface px-3 py-3 text-base focus:border-brand-teal focus:outline-none disabled:opacity-50"
-            />
-          </label>
-          <label className="block">
-            <span className="text-sm font-medium text-brand-darkest/80">Unit</span>
-            <input
-              value={unit}
-              onChange={(e) => setUnit(e.target.value)}
-              disabled={saving}
-              className="mt-1 w-full rounded-lg border border-brand-surface px-3 py-3 text-base focus:border-brand-teal focus:outline-none disabled:opacity-50"
-            />
-          </label>
-        </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="grid gap-2">
+                <Label htmlFor="lowThreshold">Low Threshold</Label>
+                <Input
+                  id="lowThreshold"
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  value={lowThreshold}
+                  onChange={(e) => setLowThreshold(e.target.value)}
+                  {...selectAllProps}
+                  disabled={saving}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="unit">Unit</Label>
+                <Input
+                  id="unit"
+                  value={unit}
+                  onChange={(e) => setUnit(e.target.value)}
+                  disabled={saving}
+                />
+              </div>
+            </div>
 
-        <label className="mt-4 block">
-          <span className="text-sm font-medium text-brand-darkest/80">Storage</span>
-          <select
-            value={storage}
-            onChange={(e) => setStorage(e.target.value)}
-            disabled={saving}
-            className="mt-1 w-full rounded-lg border border-brand-surface bg-white px-3 py-3 text-base focus:border-brand-teal focus:outline-none disabled:opacity-50"
-          >
-            {PAMS_STORAGES.map((s) => (
-              <option key={s.code} value={s.code}>
-                {s.label}
-              </option>
-            ))}
-          </select>
-        </label>
+            <div className="grid gap-2">
+              <Label htmlFor="storage">Storage</Label>
+              <select
+                id="storage"
+                value={storage}
+                onChange={(e) => setStorage(e.target.value)}
+                disabled={saving}
+                className="flex h-9 w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
+              >
+                {PAMS_STORAGES.map((s) => (
+                  <option key={s.code} value={s.code}>
+                    {s.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
 
-        {error && (
-          <p className="mt-4 rounded-lg bg-brand-gold/10 px-3 py-2 text-sm font-medium text-brand-darkest">
-            {error}
-          </p>
-        )}
+          {error && (
+            <div className="mt-4 rounded-lg bg-accent/10 px-3 py-2 text-sm font-medium text-foreground">
+              {error}
+            </div>
+          )}
 
-        <div className="mt-6 flex gap-3">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={saving}
-            className="flex-1 rounded-lg bg-brand-surface py-3 text-base font-semibold text-brand-darkest active:bg-brand-surface/80 disabled:opacity-50"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={saving}
-            className="flex-1 rounded-lg bg-brand-teal py-3 text-base font-semibold text-white active:bg-brand-teal2 disabled:opacity-50"
-          >
-            {saving ? "Saving…" : "Add Item"}
-          </button>
-        </div>
-      </form>
-    </div>
+          <DialogFooter className="mt-6">
+            <Button type="button" variant="outline" onClick={onClose} disabled={saving}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={saving}>
+              {saving ? "Saving…" : "Add Item"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
