@@ -219,7 +219,7 @@ export default function Scanner({ onClose }) {
 
       {/* Camera viewport */}
       <div className="relative flex flex-1 items-center justify-center">
-        <div id={READER_ID} className="w-full max-w-md" />
+        <div id={READER_ID} className={`w-full max-w-md ${activeItem || activeAsset || notFoundId || loadingItem ? 'invisible' : ''}`} />
 
         {cameraError && (
           <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 rounded-lg bg-white p-5 text-center">
@@ -496,7 +496,7 @@ export default function Scanner({ onClose }) {
 
 function SubModal({ children }) {
   return (
-    <div className="fixed inset-0 z-10 flex items-center justify-center bg-black/60 p-4">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-4">
       <div className="w-full max-w-sm max-h-[90vh] overflow-y-auto rounded-xl bg-popover p-6 text-sm text-popover-foreground shadow-lg">
         {children}
       </div>
