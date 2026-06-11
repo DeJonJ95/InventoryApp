@@ -206,7 +206,7 @@ export default function Scanner({ onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-black">
       {/* Top bar */}
-      <div className="flex items-center justify-between px-4 py-3 text-white">
+      <div className="flex items-center justify-between px-4 py-3 text-white z-[70]">
         <span className="text-lg font-semibold">Scan Item</span>
         <Button
           onClick={onClose}
@@ -370,15 +370,6 @@ export default function Scanner({ onClose }) {
       {/* Item / stock-adjust sub-modal */}
       {activeItem && (
         <SubModal>
-          <img
-            src={imgUrl(activeItem.id, activeItem.photoVersion)}
-            alt={activeItem.itemName || activeItem.id}
-            onError={(e) => {
-              e.currentTarget.onerror = null;
-              e.currentTarget.src = FALLBACK_IMG;
-            }}
-            className="mx-auto h-32 w-32 rounded-lg object-cover"
-          />
           <p className="mt-3 text-center text-xs font-semibold uppercase tracking-wide text-brand-teal">
             Updating
           </p>
@@ -391,7 +382,7 @@ export default function Scanner({ onClose }) {
           </p>
 
           {/* In Stock — primary count, typeable */}
-          <div className="mt-5 rounded-xl border-2 border-brand-teal/30 bg-brand-teal/10 p-4">
+          <div className="mt-3 rounded-xl border-2 border-brand-teal/30 bg-brand-teal/10 p-4">
             <p className="text-sm font-semibold text-brand-darkest">
               In Stock — total now in this bin
             </p>
@@ -471,7 +462,7 @@ export default function Scanner({ onClose }) {
             </label>
           </div>
 
-          <div className="mt-6 flex gap-3">
+          <div className="mt-4 flex gap-3">
             <Button
               onClick={resumeScanning}
               disabled={saving}
@@ -497,7 +488,7 @@ export default function Scanner({ onClose }) {
 function SubModal({ children }) {
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-4">
-      <div className="w-full max-w-sm max-h-[90vh] overflow-y-auto rounded-xl bg-popover p-6 text-sm text-popover-foreground shadow-lg">
+      <div className="w-full max-w-sm max-h-[85vh] overflow-y-auto rounded-xl bg-popover p-6 text-sm text-popover-foreground shadow-lg">
         {children}
       </div>
     </div>
