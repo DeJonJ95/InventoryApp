@@ -17,6 +17,9 @@ import HelpModal from "@/components/HelpModal";
 import ManageItemModal from "@/components/ManageItemModal";
 import AppShell from "@/components/AppShell";
 import StockControlSection from "@/components/sections/StockControlSection";
+import OverviewSection from "@/components/sections/OverviewSection";
+import ReportsSection from "@/components/sections/ReportsSection";
+import SettingsSection from "@/components/sections/SettingsSection";
 import { Spinner } from "@phosphor-icons/react";
 
 export default function DashboardPage() {
@@ -207,11 +210,19 @@ function InventoryDashboard({ user }) {
           />
         );
       case "overview":
-        return <PlaceholderSection title="Overview" subtitle="Summary view coming soon." />;
+        return (
+          <OverviewSection items={items} setManageItem={setManageItem} />
+        );
       case "reports":
-        return <PlaceholderSection title="Reports" subtitle="Reports coming soon." />;
+        return <ReportsSection pams={pams} items={items} />;
       case "settings":
-        return <PlaceholderSection title="Settings" subtitle="Settings coming soon." />;
+        return (
+          <SettingsSection
+            userEmail={user.email}
+            onHelp={() => setHelpOpen(true)}
+            onSignOut={() => signOut(auth)}
+          />
+        );
       default:
         return null;
     }
@@ -258,14 +269,5 @@ function InventoryDashboard({ user }) {
       )}
       {scannerOpen && <Scanner onClose={() => setScannerOpen(false)} />}
     </>
-  );
-}
-
-function PlaceholderSection({ title, subtitle }) {
-  return (
-    <div className="flex flex-col items-center justify-center py-32 text-brand-darkest/40">
-      <p className="text-xl font-semibold">{title}</p>
-      <p className="mt-1 text-sm">{subtitle}</p>
-    </div>
   );
 }
